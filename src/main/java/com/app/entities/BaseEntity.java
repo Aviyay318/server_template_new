@@ -1,4 +1,4 @@
-package com.ashcollege.entities;
+package com.app.entities;
 
 public class BaseEntity {
     private int id;

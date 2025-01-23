@@ -1,6 +1,6 @@
-package com.ashcollege;
+package com.app;
 
-import com.ashcollege.service.Persist;
+import com.app.service.Persist;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.ControllerAdvice;

@@ -1,4 +1,4 @@
-package com.ashcollege.service;
+package com.app.service;
 
 
 import org.hibernate.Session;

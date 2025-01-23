@@ -5,21 +5,21 @@
 
 <hibernate-mapping>
 
-    <class name="com.ashcollege.entities.CityEntity" table="cities" lazy="false">
+    <class name="com.app.entities.UserEntity" table="users" lazy="false">
         <id name="id" type="int" column="id">
             <generator class="native"/>
         </id>
-        <property name="name" type="string" column="name"/>
+        <property name="firstName" type="java.lang.String" column="first_name"/>
+        <property name="lastName" type="java.lang.String" column="last_name"/>
+        <property name="username" type="java.lang.String" column="username"/>
+        <property name="age" type="java.lang.Integer" column="age"/>
+        <property name="level" type="java.lang.Integer" column="level"/>
+        <property name="password" type="java.lang.String" column="password"/>
+        <property name="email" type="java.lang.String" column="email"/>
+        <property name="otp" type="java.lang.String" column="email"/>
     </class>
 
-    <class name="com.ashcollege.entities.StreetEntity" table="streets" lazy="false">
-        <id name="id" type="int" column="id">
-            <generator class="native"/>
-        </id>
-        <property name="name" type="string" column="name"/>
-                <many-to-one name="cityEntity" column="city_id"
-                             class="com.ashcollege.entities.CityEntity"/>
-    </class>
+
 
 
 

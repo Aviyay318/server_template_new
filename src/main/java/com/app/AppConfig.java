@@ -1,4 +1,4 @@
-package com.ashcollege;
+package com.app;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +16,7 @@ import java.sql.DriverManager;
 import java.sql.Statement;
 import java.util.Properties;
 
-import static com.ashcollege.utils.Constants.*;
+import static com.app.utils.Constants.*;
 
 
 @Configuration
