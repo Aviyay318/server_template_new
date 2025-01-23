@@ -1,6 +1,7 @@
 package com.app.service;
 
 
+import com.app.entities.UserEntity;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,5 +54,11 @@ public class Persist {
     }
 
 
+    public UserEntity getUserByEmailAndPassword(String email) {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("FROM UserEntity WHERE email = :email ", UserEntity.class)
+                .setParameter("email", email)
+                .uniqueResult();
+    }
 
 }
