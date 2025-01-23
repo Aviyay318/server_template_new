@@ -49,9 +49,11 @@ public class GeneralController {
                 user.setPassword(hashed);
                 String otp = GeneralUtils.generateOtp();
                 user.setOtp(otp);
+                success = true;
+                errorCode = null;
             }
         }
-        return null;
+        return new RegisterResponse(success,errorCode);
     }
 
 
