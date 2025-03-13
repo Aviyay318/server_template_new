@@ -17,6 +17,7 @@
         <property name="password" type="java.lang.String" column="password"/>
         <property name="email" type="java.lang.String" column="email"/>
         <property name="otp" type="java.lang.String" column="otp"/>
+        <property name="gender" type="java.lang.String" column="gender"/>
     </class>
 
 
