@@ -9,18 +9,26 @@ public class UserEntity extends BaseEntity{
     private String email;
     private int level;
     private String otp;
-
-
+    private String gender;
     public UserEntity() {
     }
 
-    public UserEntity(String firstName, String lastName, String username, String password, int age, String email) {
+    public UserEntity(String firstName, String lastName, String username, String password, int age, String email,String gender) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
         this.password = password;
         this.age = age;
         this.email = email;
+        this.gender=gender;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
     }
 
     public String getFirstName() {
@@ -85,5 +93,20 @@ public class UserEntity extends BaseEntity{
 
     public void setLevel(int level) {
         this.level = level;
+    }
+
+    @Override
+    public String toString() {
+        return "UserEntity{" +
+                "firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", age=" + age +
+                ", email='" + email + '\'' +
+                ", level=" + level +
+                ", otp='" + otp + '\'' +
+                ", gender='" + gender + '\'' +
+                '}';
     }
 }

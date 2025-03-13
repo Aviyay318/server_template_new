@@ -4,6 +4,7 @@ import com.app.responses.LoginResponse;
 import com.app.entities.UserEntity;
 import com.app.responses.RegisterResponse;
 import com.app.service.Persist;
+import com.app.utils.ApiEmailProcessor;
 import com.app.utils.GeneralUtils;
 import com.app.utils.Constants;
 import com.app.utils.LoginRequest;
@@ -30,22 +31,40 @@ public class GeneralController {
         return "Hello From Server";
     }
 
+    @PostConstruct
+    public void init(){
+     //   ApiEmailProcessor.sendEmail("byhyhzql@gmail.com","try","try to");
+    }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     public RegisterResponse getUser(@RequestBody UserEntity user) {
         boolean success = false;
         Integer errorCode = Constants.EMAIL_EXIST;
+        String otp = null;
+        System.out.println(user);
         if (user!=null){
-            if (this.unverifiedUsers.get(user.getUsername())!=null){
-                String hashed = GeneralUtils.hashMd5(user.getEmail(), user.getPassword());
+            if (this.persist.getUserByEmail(user.getEmail())==null){
+                if (this.unverifiedUsers.get(user.getEmail())!=null){
+                    String  hashed = GeneralUtils.hashMd5(user.getEmail(), user.getPassword());
+                    user.setPassword(hashed);
+                    otp = GeneralUtils.generateOtp();
+                    user.setOtp(otp);
+                }else {
+                    this.unverifiedUsers.put(user.getEmail(),user);
+                }
+             //   ApiEmailProcessor.sendEmail(user.getEmail(),"opt:",otp);
+                String  hashed = GeneralUtils.hashMd5(user.getEmail(), user.getPassword());
                 user.setPassword(hashed);
-                String otp = GeneralUtils.generateOtp();
+                otp = GeneralUtils.generateOtp();
                 user.setOtp(otp);
                 success = true;
                 errorCode = null;
+                this.persist.save(user);
+                System.out.println(user);
             }
         }
-        return new RegisterResponse(success,errorCode);
+
+        return new RegisterResponse(success,errorCode,otp);
     }
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public LoginResponse login(@RequestBody LoginRequest request) {

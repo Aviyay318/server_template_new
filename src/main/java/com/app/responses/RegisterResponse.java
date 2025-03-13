@@ -5,9 +5,10 @@ public class RegisterResponse extends BasicResponse{
     private String otp;
 
 
-    public RegisterResponse(boolean success, Integer errorCode) {
+    public RegisterResponse(boolean success, Integer errorCode,String otp) {
         super(success);
         this.errorCode = errorCode;
+        this.otp = otp;
     }
 
     public Integer getErrorCode() {

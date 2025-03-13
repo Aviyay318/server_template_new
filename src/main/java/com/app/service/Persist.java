@@ -60,5 +60,18 @@ public class Persist {
                 .setParameter("email", email)
                 .uniqueResult();
     }
+    public UserEntity getUserByEmail(String email) {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("FROM UserEntity WHERE email = :email ", UserEntity.class)
+                .setParameter("email", email)
+                .uniqueResult();
+    }
+
+    public UserEntity getUserByToken(String password) {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("FROM UserEntity WHERE password = :password ", UserEntity.class)
+                .setParameter("password", password)
+                .uniqueResult();
+    }
 
 }

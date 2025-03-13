@@ -8,4 +8,6 @@ public class Constants {
     public static final Integer EMAIL_EXIST = 1001;
     public static final String ADMIN_EMAIL="admin12345@gmail.com";
     public static final String ADMIN_PASSWORD = "admin12345";
+
+    public static final int LEVEL_ONE= 1;
 }
