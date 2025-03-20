@@ -1,6 +1,7 @@
 package com.app.service;
 
 
+import com.app.entities.ExerciseHistoryEntity;
 import com.app.entities.UserEntity;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -74,4 +75,10 @@ public class Persist {
                 .uniqueResult();
     }
 
+    public List<ExerciseHistoryEntity> getExercisesByUserId(int userId) {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("FROM ExerciseHistoryEntity WHERE userId = :userId ", ExerciseHistoryEntity.class)
+                .setParameter("userId", userId)
+                .list();
+    }
 }

@@ -10,10 +10,7 @@ import com.app.utils.Constants;
 import com.app.utils.LoginRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
@@ -36,36 +33,39 @@ public class GeneralController {
      //   ApiEmailProcessor.sendEmail("byhyhzql@gmail.com","try","try to");
     }
 
-    @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public RegisterResponse getUser(@RequestBody UserEntity user) {
+    @PostMapping("/register")
+    public RegisterResponse getUser(@RequestBody UserEntity user) { // ✔️ מקבל ישירות UserEntity
+        System.out.println("Received User: " + user);
+
         boolean success = false;
         Integer errorCode = Constants.EMAIL_EXIST;
         String otp = null;
-        System.out.println(user);
-        if (user!=null){
-            if (this.persist.getUserByEmail(user.getEmail())==null){
-                if (this.unverifiedUsers.get(user.getEmail())!=null){
-                    String  hashed = GeneralUtils.hashMd5(user.getEmail(), user.getPassword());
+
+        if (user != null) {
+            if (this.persist.getUserByEmail(user.getEmail()) == null) {
+                if (this.unverifiedUsers.get(user.getEmail()) != null) {
+                    String hashed = GeneralUtils.hashMd5(user.getEmail(), user.getPassword());
                     user.setPassword(hashed);
                     otp = GeneralUtils.generateOtp();
                     user.setOtp(otp);
-                }else {
-                    this.unverifiedUsers.put(user.getEmail(),user);
+                } else {
+                    this.unverifiedUsers.put(user.getEmail(), user);
                 }
-             //   ApiEmailProcessor.sendEmail(user.getEmail(),"opt:",otp);
-                String  hashed = GeneralUtils.hashMd5(user.getEmail(), user.getPassword());
+                // ApiEmailProcessor.sendEmail(user.getEmail(), "opt:", otp);
+                String hashed = GeneralUtils.hashMd5(user.getEmail(), user.getPassword());
                 user.setPassword(hashed);
                 otp = GeneralUtils.generateOtp();
                 user.setOtp(otp);
                 success = true;
                 errorCode = null;
                 this.persist.save(user);
-                System.out.println(user);
+                System.out.println("Saved User: " + user);
             }
         }
 
-        return new RegisterResponse(success,errorCode,otp);
+        return new RegisterResponse(success, errorCode, otp);
     }
+
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public LoginResponse login(@RequestBody LoginRequest request) {
         String email = request.getEmail();
