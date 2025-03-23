@@ -75,7 +75,7 @@ public class Persist {
                 .uniqueResult();
     }
 
-    public List<ExerciseHistoryEntity> getExercisesByUserId(int userId) {
+    public List<ExerciseHistoryEntity> getExercisesByUserId(UserEntity userId) {
         return this.sessionFactory.getCurrentSession()
                 .createQuery("FROM ExerciseHistoryEntity WHERE userId = :userId ", ExerciseHistoryEntity.class)
                 .setParameter("userId", userId)

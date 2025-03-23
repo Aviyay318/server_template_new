@@ -5,6 +5,7 @@ import com.app.entities.UserEntity;
 import com.app.service.Persist;
 import com.app.utils.LevelUp;
 import com.app.utils.MathExercise;
+import com.app.utils.QuestionGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,10 +41,17 @@ public class MathController {
 
     @RequestMapping("/get-level")
     public int getLevel(String token){
-        System.out.println(token);
         UserEntity user = this.persist.getUserByToken(token);
-        System.out.println(user);
-       return LevelUp.getLevelOfUser(this.persist.getExercisesByUserId(user.getId()));
+       return LevelUp.getLevelOfUser(this.persist.getExercisesByUserId(user));
     }
 
+
+    @RequestMapping("/get-literal-problem")
+    public Map<String, Object> getLiteralProblem(String token) {
+        return QuestionGenerator.generateQuestion();
+    }
+    @RequestMapping("/check-literal-problem")
+    public boolean checkLiteralProblem(String token, int id){
+        return false;
+    }
 }
