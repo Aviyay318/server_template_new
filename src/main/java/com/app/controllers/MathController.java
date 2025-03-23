@@ -44,7 +44,10 @@ public class MathController {
         UserEntity user = this.persist.getUserByToken(token);
        return LevelUp.getLevelOfUser(this.persist.getExercisesByUserId(user));
     }
-
+    @RequestMapping("/check-exercise")
+    public boolean checkExercise(String token, int id){
+        return false;
+    }
 
     @RequestMapping("/get-literal-problem")
     public Map<String, Object> getLiteralProblem(String token) {
