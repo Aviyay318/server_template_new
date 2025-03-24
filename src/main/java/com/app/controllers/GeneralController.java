@@ -2,12 +2,10 @@ package com.app.controllers;
 
 import com.app.responses.LoginResponse;
 import com.app.entities.UserEntity;
+import com.app.responses.OtpResponse;
 import com.app.responses.RegisterResponse;
 import com.app.service.Persist;
-import com.app.utils.ApiEmailProcessor;
-import com.app.utils.GeneralUtils;
-import com.app.utils.Constants;
-import com.app.utils.LoginRequest;
+import com.app.utils.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.web.bind.annotation.*;
@@ -33,37 +31,65 @@ public class GeneralController {
      //   ApiEmailProcessor.sendEmail("byhyhzql@gmail.com","try","try to");
     }
 
+//    @PostMapping("/register")
+//    public RegisterResponse getUser(@RequestBody UserEntity user) { // ✔️ מקבל ישירות UserEntity
+//        System.out.println("Received User: " + user);
+//
+//        boolean success = false;
+//        Integer errorCode = Constants.EMAIL_EXIST;
+//        String otp = null;
+//
+//        if (user != null) {
+//            if (this.persist.getUserByEmail(user.getEmail()) == null) {
+//                if (this.unverifiedUsers.get(user.getEmail()) != null) {
+//                    String hashed = GeneralUtils.hashMd5(user.getEmail(), user.getPassword());
+//                    user.setPassword(hashed);
+//                    otp = GeneralUtils.generateOtp();
+//                    user.setOtp(otp);
+//                } else {
+//                    this.unverifiedUsers.put(user.getEmail(), user);
+//                }
+//                System.out.println(ApiEmailProcessor.sendEmail(user.getEmail(), "opt:", otp));
+//                String hashed = GeneralUtils.hashMd5(user.getEmail(), user.getPassword());
+//                user.setPassword(hashed);
+//                otp = GeneralUtils.generateOtp();
+//                System.out.println("This is OTP: " + otp);
+//                user.setOtp(otp);
+//                if (otp.equals(user.getOtp())) {
+//
+//                }
+//                success = true;
+//                errorCode = null;
+//                this.persist.save(user);
+//                System.out.println("Saved User: " + user);
+//            }
+//        }
+//
+//        return new RegisterResponse(success, errorCode, otp);
+//    }
+
     @PostMapping("/register")
-    public RegisterResponse getUser(@RequestBody UserEntity user) { // ✔️ מקבל ישירות UserEntity
-        System.out.println("Received User: " + user);
+    public RegisterResponse registerUser (@RequestBody UserEntity user) {
+        System.out.println("Received User " + user);
 
         boolean success = false;
         Integer errorCode = Constants.EMAIL_EXIST;
         String otp = null;
 
-        if (user != null) {
-            if (this.persist.getUserByEmail(user.getEmail()) == null) {
-                if (this.unverifiedUsers.get(user.getEmail()) != null) {
-                    String hashed = GeneralUtils.hashMd5(user.getEmail(), user.getPassword());
-                    user.setPassword(hashed);
-                    otp = GeneralUtils.generateOtp();
-                    user.setOtp(otp);
-                } else {
-                    this.unverifiedUsers.put(user.getEmail(), user);
-                }
-                // ApiEmailProcessor.sendEmail(user.getEmail(), "opt:", otp);
-                String hashed = GeneralUtils.hashMd5(user.getEmail(), user.getPassword());
-                user.setPassword(hashed);
-                otp = GeneralUtils.generateOtp();
-                user.setOtp(otp);
-                success = true;
-                errorCode = null;
-                this.persist.save(user);
-                System.out.println("Saved User: " + user);
-            }
-        }
+        if (user != null && persist.getUserByEmail(user.getEmail()) == null) {
+            otp = GeneralUtils.generateOtp();
+            user.setOtp(otp);
 
-        return new RegisterResponse(success, errorCode, otp);
+            String hashed = GeneralUtils.hashMd5(user.getEmail(), user.getPassword());
+            user.setPassword(hashed);
+
+            unverifiedUsers.put(user.getEmail(),user);
+            boolean emailSent = ApiEmailProcessor.sendEmail(user.getEmail(), "OTP Verification", "Here is your code: " + otp);
+            System.out.println("OTP sent: " + emailSent);
+            success = true;
+            errorCode=null;
+        }
+        return new RegisterResponse(success,errorCode,otp);
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
@@ -89,4 +115,21 @@ public class GeneralController {
       return new LoginResponse(success,token,isAdmin);
     }
 
+    @PostMapping ("/check-otp-to-register")
+    public OtpResponse getOtp(@RequestBody OtpRequest otpRequest) {
+        System.out.println(otpRequest);
+        String email = otpRequest.getEmail();
+        String otp = otpRequest.getOtp();
+        UserEntity user = unverifiedUsers.get(email);
+        if (user == null){
+            return new OtpResponse(false, "User not found", false);
+        }
+        if (user.getOtp() != null && user.getOtp().equals(otp)){
+            user.setOtp(null);
+            persist.update(user);
+            return new OtpResponse(true, "OTP verified successfully", true);
+        } else{
+            return new OtpResponse(false, "Invalid OTP", false);
+        }
+    }
 }

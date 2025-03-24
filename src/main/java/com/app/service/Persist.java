@@ -46,6 +46,8 @@ public class Persist {
         this.sessionFactory.getCurrentSession().saveOrUpdate(object);
     }
 
+    public void update(Object object) {this.sessionFactory.getCurrentSession().saveOrUpdate(object);}
+
     public <T> T loadObject(Class<T> clazz, int oid) {
         return this.getQuerySession().get(clazz, oid);
     }
