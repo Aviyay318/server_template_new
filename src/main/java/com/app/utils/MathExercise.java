@@ -105,6 +105,7 @@ public class MathExercise extends BaseEntity {
 
     public Map<String, Object> toJson() {
         Map<String, Object> json = new HashMap<>();
+        json.put("id",getId());
         json.put("num1", num1);
         json.put("operand1", operand1);
         json.put("num2", num2);
