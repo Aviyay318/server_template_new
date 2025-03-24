@@ -16,7 +16,7 @@ import java.util.Properties;
 
 public class ApiEmailProcessor {
         public static void main(String[] args) {
-//          sendEmail("byhyhzql@gmail.com","try","try to");
+          sendEmail("ramrevivo0@gmail.com","try","try to");
     }
     public static final String SENDER_EMAIL = "kidslearning580@gmail.com";
     public static final String SENDER_PASSWORD = "rvrr dtop tcks yzpz";
@@ -50,10 +50,21 @@ public class ApiEmailProcessor {
             message.setSubject(subject);
 
             MimeBodyPart textPart = new MimeBodyPart();
-            String htmlContent = "<html><body>"
-                    + "<h3>" + subject + "</h3>"
-                    + "<p>" + content.replace("\n", "<br>") + "</p>"
-                    + "</body></html>";
+            String htmlContent = "<html>" +
+                    "<head>" +
+                    "  <style type='text/css'>" +
+                    "    body { text-align: center; font-size: 16px; font-weight: 400; margin: 0; padding: 0; }" +
+                    "    h3 { font-size: 20px; font-weight: bold; margin-bottom: 1rem; }" +
+                    "    p { margin: 0 0 1rem 0; }" +
+                    "    .otp-code { font-size: 28px; font-weight: bold; color: #ff7200; }" +
+                    "  </style>" +
+                    "</head>" +
+                    "<body>" +
+                    "  <h3>" + subject + "</h3>" +
+                    "  <p>" + content.replace("\n", "<br>") + "</p>" +
+                    "  <div class='otp-code'>Your OTP: " + content + "</div>" +
+                    "</body>" +
+                    "</html>";
             textPart.setContent(htmlContent, "text/html; charset=UTF-8");
 
             MimeBodyPart imagePart = new MimeBodyPart();
