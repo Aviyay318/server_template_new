@@ -84,8 +84,8 @@ public class GeneralController {
             user.setPassword(hashed);
 
             unverifiedUsers.put(user.getEmail(),user);
-            boolean emailSent = ApiEmailProcessor.sendEmail(user.getEmail(), "OTP Verification", "Here is your code: " + otp);
-            System.out.println("OTP sent: " + emailSent);
+          //  boolean emailSent = ApiEmailProcessor.sendEmail(user.getEmail(), "OTP Verification", "Here is your code: " + otp);
+         //   System.out.println("OTP sent: " + emailSent);
             success = true;
             errorCode=null;
         }

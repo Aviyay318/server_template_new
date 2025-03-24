@@ -1,9 +1,12 @@
 package com.app.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class UserEntity extends BaseEntity{
     private String firstName;
     private String lastName;
     private String username;
+    @JsonIgnore
     private String password;
     private int age;
     private String email;
