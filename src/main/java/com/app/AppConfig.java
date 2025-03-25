@@ -18,24 +18,22 @@ import java.util.Properties;
 
 import static com.app.utils.Constants.*;
 
-
 @Configuration
 @Profile("production")
 public class AppConfig {
 
-
     @Bean
     public DataSource dataSource() throws Exception {
-        String jdbcUrl = "jdbc:mysql://localhost:3306/?useSSL=false&allowPublicKeyRetrieval=true";
-        Class.forName("com.mysql.jdbc.Driver");
+        String jdbcUrl = "jdbc:mysql://localhost:3306/?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+        Class.forName("com.mysql.cj.jdbc.Driver"); // ← מתוקן
         try (Connection connection = DriverManager.getConnection(jdbcUrl, DB_USERNAME, DB_PASSWORD);
              Statement statement = connection.createStatement()) {
             String createSchemaSQL = "CREATE SCHEMA IF NOT EXISTS " + SCHEMA;
             statement.executeUpdate(createSchemaSQL);
         }
         ComboPooledDataSource dataSource = new ComboPooledDataSource();
-        dataSource.setDriverClass("com.mysql.jdbc.Driver");
-        dataSource.setJdbcUrl("jdbc:mysql://localhost:3306/" + SCHEMA + "?useSSL=false&allowPublicKeyRetrieval=true");
+        dataSource.setDriverClass("com.mysql.cj.jdbc.Driver"); // ← מתוקן
+        dataSource.setJdbcUrl("jdbc:mysql://localhost:3306/" + SCHEMA + "?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC");
         dataSource.setUser(DB_USERNAME);
         dataSource.setPassword(DB_PASSWORD);
         dataSource.setMaxPoolSize(20);
