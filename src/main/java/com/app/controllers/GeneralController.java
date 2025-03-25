@@ -28,7 +28,13 @@ public class GeneralController {
 
     @PostConstruct
     public void init(){
+//        1,פעולות חשבון
+//        2,בעיות מילוליות
+//        3,משוואות
+//        4,לוח הכפל
+
     }
+
 
     @PostMapping("/register")
     public RegisterResponse registerUser (@RequestBody UserEntity user) {

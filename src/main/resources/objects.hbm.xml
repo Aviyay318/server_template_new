@@ -28,9 +28,18 @@
         <property name="exercise" type="java.lang.String" column="exercise"/>
         <property name="isCorrectAnswer" type="boolean" column="is_correct_answer"/>
         <property name="level" type="int" column="level"/>
+        <many-to-one name="questionType" column="question_type_id" class="com.app.entities.QuestionTypeEntity"/>
         <property name="answer" type="java.lang.String" column="answer"/>
         <property name="solutionTime" type="java.lang.Double" column="solution_time"/>
 
+    </class>
+
+    <class name="com.app.entities.QuestionTypeEntity" table="question_type" lazy="false">
+        <id name="id" type="int" column="id">
+            <generator class="native"/>
+        </id>
+
+     <property name="name" column="name" type="java.lang.String"/>
     </class>
 
 

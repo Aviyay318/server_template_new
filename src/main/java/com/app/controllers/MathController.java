@@ -1,17 +1,18 @@
 package com.app.controllers;
 
 import com.app.entities.ExerciseHistoryEntity;
+import com.app.entities.QuestionTypeEntity;
 import com.app.entities.UserEntity;
 import com.app.service.Persist;
 import com.app.utils.LevelUp;
 import com.app.utils.MathExercise;
+import com.app.utils.MultiplicationTable;
 import com.app.utils.QuestionGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -31,9 +32,9 @@ public class MathController {
 
         // יצירת תרגיל
         MathExercise mathExercise = new MathExercise(level);
-
+        QuestionTypeEntity questionType = this.persist.loadObject(QuestionTypeEntity.class,1);
         // שמירת ההיסטוריה
-        ExerciseHistoryEntity exerciseHistory = new ExerciseHistoryEntity(user, level, mathExercise.toString(), false,mathExercise.getSolution().toString());
+        ExerciseHistoryEntity exerciseHistory = new ExerciseHistoryEntity(user, level, mathExercise.toString(), false,mathExercise.getSolution().toString(),questionType);
         this.persist.save(exerciseHistory);
         mathExercise.setId(exerciseHistory.getId());
         // החזרת JSON
@@ -41,7 +42,7 @@ public class MathController {
     }
 
     @RequestMapping("/get-level")
-    public int getLevel(String token){
+    public int getLevel(String token,int questionTypeId){
         UserEntity user = this.persist.getUserByToken(token);
        return LevelUp.getLevelOfUser(this.persist.getExercisesByUserId(user));
     }
@@ -62,7 +63,8 @@ public class MathController {
         System.out.println(user);
         Map<String, Object> literalProblem = QuestionGenerator.generateQuestion();
        System.out.println(literalProblem.get("answer"));
-     ExerciseHistoryEntity exerciseHistory = new ExerciseHistoryEntity(user,1,(String) literalProblem.get("question"),false, String.valueOf(literalProblem.get("answer")));
+        QuestionTypeEntity questionType = this.persist.loadObject(QuestionTypeEntity.class,2);
+        ExerciseHistoryEntity exerciseHistory = new ExerciseHistoryEntity(user,1,(String) literalProblem.get("question"),false, String.valueOf(literalProblem.get("answer")),questionType);
        System.out.println(exerciseHistory.getAnswer());
        this.persist.save(exerciseHistory);
        literalProblem.put("id",exerciseHistory.getId());
@@ -74,4 +76,53 @@ public class MathController {
     public boolean checkLiteralProblem(String token, int id){
         return false;
     }
+
+    @RequestMapping("/get-question-type")
+    public List<QuestionTypeEntity> getQuestionType(){
+        return this.persist.loadList(QuestionTypeEntity.class);
+    }
+    @RequestMapping("/get-multiplication-table-exercise")
+    public MultiplicationTable getMultiplicationTableExercise(){
+        return new MultiplicationTable();
+    }
+
+    @RequestMapping("/get-multiplication-table-history")
+    @ResponseBody
+    public Map<String, Object> getMultiplicationTableHistory(@RequestParam String token) {
+        UserEntity user = this.persist.getUserByToken(token);
+        List<ExerciseHistoryEntity> history = this.persist.getExercisesByUserId(user);
+
+        String[][] table = new String[11][11]; // [row][column]
+
+        // Step 1: מילוי כותרות
+        table[0][0] = "X";
+        for (int i = 1; i <= 10; i++) {
+            table[0][i] = String.valueOf(i); // טור כותרת
+            table[i][0] = String.valueOf(i); // שורה כותרת
+        }
+
+        // Step 2: מילוי תוצאות נכונות
+        for (ExerciseHistoryEntity e : history) {
+            if (e.getQuestionType() != null &&
+                    e.getQuestionType().getName().equalsIgnoreCase("MULTIPLICATION_TABLE") &&
+                    e.getIsCorrectAnswer()) {
+
+                // נניח הפורמט הוא "6 * 2 = ?"
+                String[] parts = e.getExercise().split("\\*|=");
+                if (parts.length >= 2) {
+                    int a = Integer.parseInt(parts[0].trim());
+                    int b = Integer.parseInt(parts[1].trim());
+
+                    if (a >= 1 && a <= 10 && b >= 1 && b <= 10) {
+                        table[a][b] = String.valueOf(a * b);
+                    }
+                }
+            }
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("table", table);
+        return result;
+    }
+
 }

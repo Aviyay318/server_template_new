@@ -6,17 +6,26 @@ public class ExerciseHistoryEntity extends BaseEntity{
     private int level;
     private boolean isCorrectAnswer;
     private String answer;
+    private QuestionTypeEntity questionType;
    private double solutionTime;
 
-    public ExerciseHistoryEntity(UserEntity userId, int level, String exercise, boolean isCorrectAnswer,String answer) {
+    public ExerciseHistoryEntity(UserEntity userId, int level, String exercise, boolean isCorrectAnswer,String answer,QuestionTypeEntity questionType) {
         this.userId = userId;
         this.level = level;
         this.isCorrectAnswer = isCorrectAnswer;
         this.exercise = exercise;
         this.answer = answer;
+        this.questionType = questionType;
         this.solutionTime=0;
     }
 
+    public QuestionTypeEntity getQuestionType() {
+        return questionType;
+    }
+
+    public void setQuestionType(QuestionTypeEntity questionType) {
+        this.questionType = questionType;
+    }
 
     public ExerciseHistoryEntity() {
     }
