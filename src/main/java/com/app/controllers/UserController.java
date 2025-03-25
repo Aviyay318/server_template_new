@@ -5,6 +5,7 @@ import com.app.entities.UserEntity;
 import com.app.service.Persist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -15,7 +16,7 @@ public class UserController {
 
 
     @RequestMapping("/get-user-data")
-    public UserEntity getUserData(String token){
+    public UserEntity getUserData(@RequestParam String token){
         System.out.println("!!!!");
         UserEntity userEntity= null;
         if (!token.isEmpty()){

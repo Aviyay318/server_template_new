@@ -28,66 +28,48 @@ public class GeneralController {
 
     @PostConstruct
     public void init(){
-     //   ApiEmailProcessor.sendEmail("byhyhzql@gmail.com","try","try to");
     }
-
-//    @PostMapping("/register")
-//    public RegisterResponse getUser(@RequestBody UserEntity user) { // ✔️ מקבל ישירות UserEntity
-//        System.out.println("Received User: " + user);
-//
-//        boolean success = false;
-//        Integer errorCode = Constants.EMAIL_EXIST;
-//        String otp = null;
-//
-//        if (user != null) {
-//            if (this.persist.getUserByEmail(user.getEmail()) == null) {
-//                if (this.unverifiedUsers.get(user.getEmail()) != null) {
-//                    String hashed = GeneralUtils.hashMd5(user.getEmail(), user.getPassword());
-//                    user.setPassword(hashed);
-//                    otp = GeneralUtils.generateOtp();
-//                    user.setOtp(otp);
-//                } else {
-//                    this.unverifiedUsers.put(user.getEmail(), user);
-//                }
-//                System.out.println(ApiEmailProcessor.sendEmail(user.getEmail(), "opt:", otp));
-//                String hashed = GeneralUtils.hashMd5(user.getEmail(), user.getPassword());
-//                user.setPassword(hashed);
-//                otp = GeneralUtils.generateOtp();
-//                System.out.println("This is OTP: " + otp);
-//                user.setOtp(otp);
-//                if (otp.equals(user.getOtp())) {
-//
-//                }
-//                success = true;
-//                errorCode = null;
-//                this.persist.save(user);
-//                System.out.println("Saved User: " + user);
-//            }
-//        }
-//
-//        return new RegisterResponse(success, errorCode, otp);
-//    }
 
     @PostMapping("/register")
     public RegisterResponse registerUser (@RequestBody UserEntity user) {
         System.out.println("Received User " + user);
-
+        System.out.println("1");
         boolean success = false;
+        System.out.println("2");
         Integer errorCode = Constants.EMAIL_EXIST;
+        System.out.println("3");
         String otp = null;
+        System.out.println("4");
 
         if (user != null && persist.getUserByEmail(user.getEmail()) == null) {
+            System.out.println("5");
             otp = GeneralUtils.generateOtp();
+            System.out.println("6");
             user.setOtp(otp);
+            System.out.println("7: " + user.getOtp());
+            if (user.getPassword() == null || user.getPassword().trim().isEmpty()) {
+                System.out.println("8");
+                System.out.println("Password is: " + user.getPassword());
+            } else{
+                System.out.println("9");
+                String hashed = GeneralUtils.hashMd5(user.getEmail(), user.getPassword());
+                System.out.println("10 : " + hashed);
+                user.setPassword(hashed);
+                System.out.println("11 : " + user.getPassword());
+                unverifiedUsers.put(user.getEmail(),user);
+                System.out.println("12 : unverified user " + unverifiedUsers.get(user.getEmail()));
+                System.out.println("13 : unverified user email " + unverifiedUsers.get(user.getEmail()).getEmail());
+                System.out.println("13 x2 : supposedly user email " + user.getEmail());
 
-            String hashed = GeneralUtils.hashMd5(user.getEmail(), user.getPassword());
-            user.setPassword(hashed);
+                boolean emailSent = ApiEmailProcessor.sendEmail(user.getEmail(), "OTP Verification", "Here is your code: " + otp);
+                System.out.println("14 : " + emailSent);
 
-            unverifiedUsers.put(user.getEmail(),user);
-          //  boolean emailSent = ApiEmailProcessor.sendEmail(user.getEmail(), "OTP Verification", "Here is your code: " + otp);
-         //   System.out.println("OTP sent: " + emailSent);
-            success = true;
-            errorCode=null;
+                System.out.println("OTP sent: " + emailSent);
+                success = true;
+                errorCode=null;
+            }
+        } else{
+            System.out.println("something went wrong, or email already exist");
         }
         return new RegisterResponse(success,errorCode,otp);
     }
