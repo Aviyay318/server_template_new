@@ -1,5 +1,6 @@
 package com.app.controllers;
 
+import com.app.entities.QuestionTypeEntity;
 import com.app.responses.LoginResponse;
 import com.app.entities.UserEntity;
 import com.app.responses.OtpResponse;
@@ -28,11 +29,28 @@ public class GeneralController {
 
     @PostConstruct
     public void init(){
+        enterInformationToTable();
+
+//        QuestionTypeEntity questionType = new QuestionTypeEntity();
+//        questionType.setId(1);
+//        MathExerciseNew mathExerciseNew = new MathExerciseNew(1,questionType,false);
+//        System.out.println("h"+mathExerciseNew.getExercise());
+//        בקופסה יש 15 עפרונות. נוספו עוד 12 עפרונות. כמה עפרונות יש בקופסה כעת?"
+//	"על המדף יש 40 ספרים. 18 ספרים הוסרו. כמה ספרים נשארו על המדף?"
+
 //        1,פעולות חשבון
 //        2,בעיות מילוליות
 //        3,משוואות
 //        4,לוח הכפל
 
+    }
+
+    private void enterInformationToTable() {
+       if (this.persist.loadList(QuestionTypeEntity.class).isEmpty()){
+           for (int i = 0; i < Constants.QUESTION_TYPE.length; i++) {
+               this.persist.save(Constants.QUESTION_TYPE[i]);
+           }
+       }
     }
 
 
