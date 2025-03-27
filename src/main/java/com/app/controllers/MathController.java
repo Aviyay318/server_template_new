@@ -11,15 +11,23 @@ import com.app.utils.QuestionGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 public class MathController {
 
     @Autowired
     private Persist persist;
+
+    @GetMapping("/get-multiple-exercises")
+    public List<Map<String, Object>> getMultipleExercises(String token, int level){
+        List<Map<String, Object>> exercises = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            exercises.add(getExercise(token,level));
+        }
+        return exercises;
+    }
+
 
     @GetMapping("/get-exercise")
     public Map<String, Object> getExercise(String token, int level) {
@@ -123,6 +131,33 @@ public class MathController {
         Map<String, Object> result = new HashMap<>();
         result.put("table", table);
         return result;
+    }
+
+    @GetMapping("/get-exercise-with-option")
+    public Map<String, Object> getExerciseWithOption(String token, int level) {
+
+        // שליפת משתמש לפי טוקן
+        UserEntity user = this.persist.getUserByToken(token);
+        if (user == null) {
+            throw new RuntimeException("Invalid token");
+        }
+
+        // יצירת תרגיל
+        MathExercise mathExercise = new MathExercise(level);
+        QuestionTypeEntity questionType = this.persist.loadObject(QuestionTypeEntity.class,1);
+        // שמירת ההיסטוריה
+        ExerciseHistoryEntity exerciseHistory = new ExerciseHistoryEntity(user, level, mathExercise.toString(), false,mathExercise.getSolution().toString(),questionType);
+        this.persist.save(exerciseHistory);
+        mathExercise.setId(exerciseHistory.getId());
+        Map<String, Object> temp = mathExercise.toJson();
+        List<Integer> array = new ArrayList<>();
+        array.add(0,mathExercise.getSolution());
+        for (int i = 1; i < 4; i++) {
+          array.add(new Random().nextInt(mathExercise.getSolution()-5,mathExercise.getSolution()+5))  ;
+        }
+        temp.put("option",array);
+        // החזרת JSON
+        return temp;
     }
 
 }

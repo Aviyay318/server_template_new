@@ -12,5 +12,5 @@ public class Constants {
 
     public static final int POINTS_TO_NEXT_LEVEL = 5;
     public static final int STREAK = 3;
-    public static final int FAST_COMPLETION_TIME = 1 ;
+    public static final int FAST_COMPLETION_TIME = 60 ;
 }
