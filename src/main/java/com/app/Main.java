@@ -1,5 +1,6 @@
 package com.app;
 
+import com.app.entities.Objects;
 import com.app.service.Persist;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,7 @@ public class Main {
         LOGGER.info("Application started.");
         applicationStarted = true;
         startTime = System.currentTimeMillis();
+
 
     }
 
