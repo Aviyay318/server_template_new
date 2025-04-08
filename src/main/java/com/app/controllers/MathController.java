@@ -24,7 +24,6 @@ public class MathController {
         for (int i = 0; i < 25; i++) {
             exercises.add(getExercise(token,level));
         }
-        System.out.println(exercises);
         return exercises;
     }
 
@@ -68,15 +67,14 @@ public class MathController {
     @RequestMapping("/get-literal-problem")
     public Map<String, Object> getLiteralProblem(@RequestParam String token) {
         // טוען נתונים מהרשימות
+
         List<ObjectsEntity> objects = this.persist.loadList(ObjectsEntity.class);
         List<ChildrenNameEntity> childrenList = this.persist.loadList(ChildrenNameEntity.class);
         UserEntity user = this.persist.getUserByToken(token);
-        System.out.println(user);
-        Map<String, Object> literalProblem = QuestionGenerator.literalProblem(objects,childrenList,10);
-        System.out.println(literalProblem.get("answer"));
+        int level = LevelUp.getLevelOfUser(this.persist.getExercisesByUserId(user));
+        Map<String, Object> literalProblem = QuestionGenerator.literalProblem(objects,childrenList,level);
         QuestionTypeEntity questionType = this.persist.loadObject(QuestionTypeEntity.class,2);
         ExerciseHistoryEntity exerciseHistory = new ExerciseHistoryEntity(user,1,(String) literalProblem.get("question"),false, String.valueOf(literalProblem.get("answer")),questionType);
-        System.out.println(exerciseHistory.getAnswer());
         this.persist.save(exerciseHistory);
         literalProblem.put("id",exerciseHistory.getId());
         return literalProblem;
@@ -160,7 +158,6 @@ public class MathController {
         }
         temp.put("option",array);
         // החזרת JSON
-        System.out.println(temp);
         return temp;
     }
 
@@ -173,8 +170,7 @@ public class MathController {
 
     @PostConstruct
     public void init() {
-        UserEntity user = this.persist.getUserByToken("7727B54FDA784AB0EC24645009CD880D");
-        System.out.println("kkk"+        LevelUp.getLevelOfUser(this.persist.getExercisesByUserId(user)));    //    tryL();
+      //  UserEntity user = this.persist.getUserByToken("7727B54FDA784AB0EC24645009CD880D");
 //        Objects svgList = getObjects();
 //        for (Map<String, String> item : svgList.getSvgList()) {
 //            ObjectsEntity objectsEntity = new ObjectsEntity();

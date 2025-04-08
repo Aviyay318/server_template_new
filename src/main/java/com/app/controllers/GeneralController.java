@@ -64,7 +64,53 @@ public class GeneralController {
            }
        }
     }
+    @RequestMapping("/forgotten-password")
+    public boolean forgottenPassword(@RequestParam String email) {
+        System.out.println("email param: " + email);
+   UserEntity user = this.persist.getUserByEmail(email);
+    System.out.println(email);
+    System.out.println(user);;
+    boolean success = false;
+    String otp = null;
+        if (user!=null){
+            otp = GeneralUtils.generateOtp();
+            System.out.println(otp);
+            user.setOtp(otp);
+            this.persist.save(user);
+            success =true;
+            boolean emailSent = ApiEmailProcessor.sendEmail(email, "שחזור סיסמא", "Here is your code: " + otp);
+            System.out.println("14 : " + emailSent);
+        }
+        return success;
+    }
+//
+//    @RequestMapping("/check-otp")
+//    public boolean checkOtp(String email,String otp){
+//        UserEntity user = this.persist.getUserByEmail(email);
+//        boolean success = false;
+//        if (user!=null){
+//          if (user.getOtp().equals(otp)){
+//              success = true;
+//          }
+//        }
+//        return success;
+//    }
 
+    @RequestMapping("/recovery-password")
+    public boolean recoveryPassword(String email,String password){
+        UserEntity user = this.persist.getUserByEmail(email);
+        boolean success = false;
+        System.out.println(password);
+        if (user!=null){
+            String hashed = GeneralUtils.hashMd5(email, password);
+            user.setPassword(hashed);
+            this.persist.save(user);
+            success = true;
+            System.out.println(hashed);
+        }
+        return success;
+    }
+    @RequestMapping("/")
 
     @PostMapping("/register")
     public RegisterResponse registerUser (@RequestBody UserEntity user) {
@@ -118,6 +164,7 @@ public class GeneralController {
         String token = null;
         boolean isAdmin = false;
         String hashed = GeneralUtils.hashMd5(email, password);
+        System.out.println(hashed);
         UserEntity user = this.persist.getUserByEmailAndPassword(email);
 
         if (user!=null){

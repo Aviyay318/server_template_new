@@ -7,9 +7,9 @@ import java.util.*;
 
 @RestController
 public class QuestionGenerator {
-    public static Map<String, Object> literalProblem(List<ObjectsEntity> objects, List<ChildrenNameEntity> childrenList, int max) {
+    public static Map<String, Object> literalProblem(List<ObjectsEntity> objects, List<ChildrenNameEntity> childrenList, int level) {
         Random random = new Random();
-
+        int max = 10;
 
 
         // בחירת שמות אקראיים
