@@ -110,7 +110,7 @@ public class GeneralController {
         }
         return success;
     }
-    @RequestMapping("/")
+
 
     @PostMapping("/register")
     public RegisterResponse registerUser (@RequestBody UserEntity user) {
