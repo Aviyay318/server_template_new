@@ -1,5 +1,6 @@
 package com.app.controllers;
 
+import com.app.entities.ChildrenNameEntity;
 import com.app.entities.QuestionTypeEntity;
 import com.app.responses.LoginResponse;
 import com.app.entities.UserEntity;
@@ -29,8 +30,19 @@ public class GeneralController {
 
     @PostConstruct
     public void init(){
-        enterInformationToTable();
-
+      //  enterInformationToTable();
+//        for (int i = 0; i < DataGenerator.boyNames.length; i++) {
+//            ChildrenNameEntity childrenName = new ChildrenNameEntity();
+//            childrenName.setName(DataGenerator.boyNames[i]);
+//            childrenName.setGender("male");
+//            this.persist.save(childrenName);
+//        }
+//        for (int i = 0; i < DataGenerator.girlNames.length; i++) {
+//            ChildrenNameEntity childrenName = new ChildrenNameEntity();
+//            childrenName.setName(DataGenerator.girlNames[i]);
+//            childrenName.setGender("female");
+//            this.persist.save(childrenName);
+//        }
 //        QuestionTypeEntity questionType = new QuestionTypeEntity();
 //        questionType.setId(1);
 //        MathExerciseNew mathExerciseNew = new MathExerciseNew(1,questionType,false);

@@ -61,6 +61,10 @@ public class UserController {
             String hebrewName = entry.getKey();
             System.out.println(hebrewName);
             String englishName = getTypeName(hebrewName);
+           statisticData.put("Arithmetic Operations",0);
+           statisticData.put("literal Problems",0);
+           statisticData.put("Equations",0);
+           statisticData.put("Multiplication Table",0);
             List<ExerciseHistoryEntity> exercises = entry.getValue();
            statisticData.put(englishName,exercises.size());
             System.out.println("Type: " + englishName + ", Count: " + exercises.size());
@@ -70,7 +74,7 @@ public class UserController {
     public String getTypeName(String type){
       return switch (type){
             case "פעולות חשבון"-> "Arithmetic Operations";
-            case "בעיות מילוליות" -> " literal Problems";
+            case "בעיות מילוליות" -> "literal Problems";
             case "משוואות" -> "Equations";
             case "לוח הכפל" -> "Multiplication Table";
           default -> "null";

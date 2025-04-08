@@ -42,5 +42,31 @@
      <property name="name" column="name" type="java.lang.String"/>
     </class>
 
+    <class name="com.app.entities.ObjectsEntity" table="objects" lazy="false">
+        <id name="id" type="int" column="id">
+            <generator class="native"/>
+        </id>
+        <property name="singularName" column="singular_name" type="java.lang.String"/>
+        <property name="pluralName" column="plural_name" type="java.lang.String"/>
+        <property name="svg" column="svg" type="java.lang.String"/>
+    </class>
+
+
+    <class name="com.app.entities.ChildrenNameEntity" table="children_name" lazy="false">
+        <id name="id" type="int" column="id">
+            <generator class="native"/>
+        </id>
+        <property name="name" column="name" type="java.lang.String"/>
+        <property name="gender" column="gender" type="java.lang.String"/>
+    </class>
+
+    <class name="com.app.entities.TemplateEntity" table="templates" lazy="false">
+        <id name="id" type="int" column="id">
+            <generator class="native"/>
+        </id>
+        <property name="type" column="type" type="java.lang.String"/>
+        <property name="template" column="template" type="java.lang.String"/>
+        <property name="isSingular" type="boolean" column="is_singular"/>
+    </class>
 
 </hibernate-mapping>

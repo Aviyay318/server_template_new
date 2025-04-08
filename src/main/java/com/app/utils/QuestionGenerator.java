@@ -1,154 +1,68 @@
 package com.app.utils;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import com.app.entities.ChildrenNameEntity;
+import com.app.entities.ObjectsEntity;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.*;
 
 @RestController
 public class QuestionGenerator {
-    static Random random = new Random();
+    public static Map<String, Object> literalProblem(List<ObjectsEntity> objects, List<ChildrenNameEntity> childrenList, int max) {
+        Random random = new Random();
 
-    static Map<String, String> genderMap = new HashMap<>();
-    static Map<String, String> pluralMap = new HashMap<>();
 
-    static {
-        for (String object : DataGenerator.singleObjects) {
-            String gender = object.endsWith("ה") || object.endsWith("ת") ? "נקבה" : "זכר";
-            String plural = fixIrregularPlurals(object);
-            genderMap.put(object, gender);
-            pluralMap.put(object, plural);
-        }
-    }
 
-    static Set<String> boyNameSet = new HashSet<>(Arrays.asList(DataGenerator.boyNames));
-    static Set<String> girlNameSet = new HashSet<>(Arrays.asList(DataGenerator.girlNames));
+        // בחירת שמות אקראיים
+        ChildrenNameEntity name1 = childrenList.get(random.nextInt(childrenList.size()));
+        ChildrenNameEntity name2 = childrenList.get(random.nextInt(childrenList.size()));
 
-    static String[] templates = {
-            "[שם] לקח [עצם1] ונתן אחד לחבר.",
-            "[שם] קיבל מתנה - [עצם1] ועוד [עצם2].",
-            "[שם] שיחק עם [עצם1].",
-            "[שם] הביא לבית הספר [עצם1] ו[עצם2].",
-            "[שם] מצא [עצם1] ברחוב. אחר כך מצא עוד [עצם2]."
-    };
+        // בחירת עצמים אקראיים
+        ObjectsEntity obj1 = objects.get(random.nextInt(objects.size()));
+        ObjectsEntity obj2 = objects.get(random.nextInt(objects.size()));
 
-    public static Map<String, Object> generateQuestion() {
-        String name;
-        boolean isBoy;
+        // כמות אקראית
+        int num1 = random.nextInt(1, max);
+        int num2 = random.nextInt(1, max);
 
-        if (random.nextBoolean()) {
-            name = getRandom(DataGenerator.boyNames);
-            isBoy = true;
-        } else {
-            name = getRandom(DataGenerator.girlNames);
-            isBoy = false;
-        }
+        // טקסט השאלה
+        String template = "ל{שם1} יש {מספר1} {עצם1} ו{שם2} {זכר/נקבה1} {זכר/נקבה2} עוד {מספר2} {עצם2} כמה {עצם1} {עצם2} יש ל{שם1} בסך הכל?";
 
-        if (girlNameSet.contains(name) && !boyNameSet.contains(name)) {
-            isBoy = false;
-        } else if (boyNameSet.contains(name) && !girlNameSet.contains(name)) {
-            isBoy = true;
-        }
+        template = template.replace("{שם1}", name1.getName());
+        template = template.replace("{שם2}", name2.getName());
+        template = template.replace("{מספר1}", String.valueOf(num1));
+        template = template.replace("{מספר2}", String.valueOf(num2));
 
-        String template = getRandom(templates);
+        template = template.replace("{זכר/נקבה1}", name2.getGender().equals("male") ? "נתן" : "נתנה");
+        template = template.replace("{זכר/נקבה2}", name1.getGender().equals("male") ? "לו" : "לה");
 
-        String word1 = getRandom(new ArrayList<>(genderMap.keySet()));
-        String word2 = getRandom(new ArrayList<>(genderMap.keySet()));
+        String nameObj1 = (num1 > 1) ? obj1.getPluralName() : obj1.getSingularName();
+        String nameObj2 = (num2 > 1) ? obj2.getPluralName() : obj2.getSingularName();
+        template = template.replace("{עצם1}", nameObj1);
+        template = template.replace("{עצם2}", nameObj2);
 
-        int n1 = randomInt(2, 5);
-        int n2 = template.contains("נתן אחד") ? 0 : randomInt(1, 4);
+        // בניית רמז תמונות
+        List<Map<String, Object>> imageHint = new ArrayList<>();
+        imageHint.add(Map.of(
+                "name", nameObj1,
+                "count", num1,
+                "svg", obj1.getSvg()
+        ));
+        imageHint.add(Map.of(
+                "name", nameObj2,
+                "count", num2,
+                "svg", obj2.getSvg()
+        ));
 
-        String formatted1 = format(word1, n1);
-        String formatted2 = format(word2, n2);
-
-        String pronoun = isBoy ? "לו" : "לה";
-        String ending;
-
-        if (template.contains("נתן אחד")) {
-            ending = String.format("כמה %s נשארו ל%s בסוף?", pluralMap.get(word1), name);
-        } else {
-            ending = String.format("כמה %s ו%s היו ל%s בסך הכל?",
-                    pluralMap.get(word1), pluralMap.get(word2), name);
-        }
-
-        String question = template
-                .replace("[שם]", name)
-                .replace("[עצם1]", formatted1)
-                .replace("[עצם2]", formatted2)
-                .replaceAll("[.?!]+$", "");
-
-        String fullQuestion = question + ". " + ending;
-        int answer = template.contains("נתן אחד") ? n1 - 1 : n1 + n2;
-
+        // התוצאה
         Map<String, Object> result = new HashMap<>();
-        result.put("question", fullQuestion);
-        result.put("hint", template.contains("נתן אחד") ? n1 + " - 1" : n1 + " + " + n2);
-        result.put("answer", answer);
+        result.put("question", template);
+        result.put("hint", num1 + " + " + num2);
+        result.put("answer", num1 + num2);
+        result.put("svg1", obj1.getSvg());
+        result.put("svg2", obj2.getSvg());
+        result.put("imageHint", imageHint);
+
         return result;
     }
-
-    private static String format(String word, int number) {
-        String gender = genderMap.getOrDefault(word, "זכר");
-        if (number == 1) {
-            return word + (gender.equals("נקבה") ? " אחת" : " אחד");
-        } else {
-            return number + " " + pluralMap.getOrDefault(word, findPlural(word));
-        }
-    }
-
-    private static String fixIrregularPlurals(String word) {
-        Map<String, String> exceptions = new HashMap<>();
-        exceptions.put("כיסא", "כיסאות");
-        exceptions.put("דגל קטן", "דגלים קטנים");
-        exceptions.put("שלט ברוכים הבאים", "שלטים ברוכים הבאים");
-        exceptions.put("מדבקת שם", "מדבקות שם");
-        exceptions.put("מספריים", "מספריים");
-        exceptions.put("מכשיר קשר", "מכשירי קשר");
-        exceptions.put("פעמון", "פעמונים");
-        exceptions.put("חבל קפיצה", "חבלי קפיצה");
-        exceptions.put("שקית הפתעה", "שקיות הפתעה");
-        exceptions.put("לוח ציור", "לוחות ציור");
-        exceptions.put("מדף", "מדפים");
-        exceptions.put("שרשרת", "שרשראות");
-        exceptions.put("שלט מעוצב", "שלטים מעוצבים");
-        exceptions.put("טוש מחיק", "טושים מחיקים");
-        exceptions.put("מכנסיים", "מכנסיים");
-        exceptions.put("בריסטול צבעוני", "בריסטולים צבעוניים");
-        exceptions.put("כריך", "כריכים");
-        exceptions.put("עכבר", "עכברים");
-        exceptions.put("דיסק", "דיסקים");
-        exceptions.put("כיסא חוף", "כיסאות חוף");
-        exceptions.put("פחית צבע", "פחיות צבע");
-        exceptions.put("כרטיס ברכה", "כרטיסי ברכה");
-        exceptions.put("תבלין", "תבלינים");
-
-        if (exceptions.containsKey(word)) {
-            return exceptions.get(word);
-        }
-
-        return findPlural(word);
-    }
-
-    private static String findPlural(String word) {
-        if (word.endsWith("ף")) return word.substring(0, word.length() - 1) + "פים";
-        if (word.endsWith("ה")) return word.substring(0, word.length() - 1) + "ות";
-        if (word.endsWith("ת")) return word.substring(0, word.length() - 1) + "ות";
-        if (word.endsWith("ון")) return word.substring(0, word.length() - 2) + "ונים";
-        if (word.endsWith("ן")) return word.substring(0, word.length() - 1) + "נים";
-        return word + "ים";
-    }
-
-    private static int randomInt(int min, int max) {
-        return random.nextInt(max - min + 1) + min;
-    }
-
-    private static String getRandom(String[] array) {
-        return array[random.nextInt(array.length)];
-    }
-
-    private static String getRandom(List<String> list) {
-        return list.get(random.nextInt(list.size()));
-    }
-
 
 }
