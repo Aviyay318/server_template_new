@@ -2,6 +2,7 @@ package com.app.controllers;
 
 import com.app.entities.ChildrenNameEntity;
 import com.app.entities.QuestionTypeEntity;
+import com.app.responses.BasicResponse;
 import com.app.responses.LoginResponse;
 import com.app.entities.UserEntity;
 import com.app.responses.OtpResponse;
@@ -65,7 +66,8 @@ public class GeneralController {
        }
     }
     @RequestMapping("/forgotten-password")
-    public boolean forgottenPassword(@RequestParam String email) {
+    public BasicResponse forgottenPassword(@RequestParam String email) {
+        String message = "האימייל לא קיים במערכת";
         System.out.println("email param: " + email);
    UserEntity user = this.persist.getUserByEmail(email);
     System.out.println(email);
@@ -78,10 +80,11 @@ public class GeneralController {
             user.setOtp(otp);
             this.persist.save(user);
             success =true;
+            message=null;
             boolean emailSent = ApiEmailProcessor.sendEmail(email, "שחזור סיסמא", "Here is your code: " + otp);
             System.out.println("14 : " + emailSent);
         }
-        return success;
+        return new BasicResponse(success,message);
     }
 //
 //    @RequestMapping("/check-otp")
@@ -97,7 +100,8 @@ public class GeneralController {
 //    }
 
     @RequestMapping("/recovery-password")
-    public boolean recoveryPassword(String email,String password){
+    public BasicResponse recoveryPassword(String email, String password){
+        String message = "האימייל לא קיים במערכת";
         UserEntity user = this.persist.getUserByEmail(email);
         boolean success = false;
         System.out.println(password);
@@ -106,9 +110,10 @@ public class GeneralController {
             user.setPassword(hashed);
             this.persist.save(user);
             success = true;
+            message = null;
             System.out.println(hashed);
         }
-        return success;
+        return new BasicResponse(success,message);
     }
 
 

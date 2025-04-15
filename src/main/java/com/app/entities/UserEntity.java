@@ -1,5 +1,7 @@
 package com.app.entities;
 
+import java.util.Date;
+
 public class UserEntity extends BaseEntity{
     private String firstName;
     private String lastName;
@@ -10,6 +12,7 @@ public class UserEntity extends BaseEntity{
     private int level;
     private String otp;
     private String gender;
+    private Date loginTime;
     public UserEntity() {
     }
 
@@ -21,6 +24,15 @@ public class UserEntity extends BaseEntity{
         this.age = age;
         this.email = email;
         this.gender=gender;
+        this.level = 1;
+    }
+
+    public Date getLoginTime() {
+        return loginTime;
+    }
+
+    public void setLoginTime(Date loginTime) {
+        this.loginTime = loginTime;
     }
 
     public String getGender() {

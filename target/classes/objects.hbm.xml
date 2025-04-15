@@ -13,6 +13,8 @@
         <property name="lastName" type="java.lang.String" column="last_name"/>
         <property name="username" type="java.lang.String" column="username"/>
         <property name="age" type="java.lang.Integer" column="age"/>
+        <property name="level" type="int" column="level"/>
+        <property name="loginTime" type="java.util.Date" column="login_time"/>
         <property name="password" type="java.lang.String" column="password"/>
         <property name="email" type="java.lang.String" column="email"/>
         <property name="otp" type="java.lang.String" column="otp"/>
