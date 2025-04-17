@@ -8,6 +8,8 @@ public class ExerciseHistoryEntity extends BaseEntity{
     private String answer;
     private QuestionTypeEntity questionType;
    private double solutionTime;
+private IslandsEntity islands;
+private int exerciseId;
 
     public ExerciseHistoryEntity(UserEntity userId, int level, String exercise, boolean isCorrectAnswer,String answer,QuestionTypeEntity questionType) {
         this.userId = userId;
@@ -17,6 +19,22 @@ public class ExerciseHistoryEntity extends BaseEntity{
         this.answer = answer;
         this.questionType = questionType;
         this.solutionTime=0;
+    }
+
+    public int getExerciseId() {
+        return exerciseId;
+    }
+
+    public void setExerciseId(int exerciseId) {
+        this.exerciseId = exerciseId;
+    }
+
+    public IslandsEntity getIslands() {
+        return islands;
+    }
+
+    public void setIslands(IslandsEntity islands) {
+        this.islands = islands;
     }
 
     public QuestionTypeEntity getQuestionType() {

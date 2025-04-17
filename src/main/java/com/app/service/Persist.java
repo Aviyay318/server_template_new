@@ -2,6 +2,8 @@ package com.app.service;
 
 
 import com.app.entities.ExerciseHistoryEntity;
+import com.app.entities.IslandsEntity;
+import com.app.entities.LevelsEntity;
 import com.app.entities.UserEntity;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -82,5 +84,13 @@ public class Persist {
                 .createQuery("FROM ExerciseHistoryEntity WHERE userId = :userId ", ExerciseHistoryEntity.class)
                 .setParameter("userId", userId)
                 .list();
+    }
+
+    public LevelsEntity getLevelByUserIdAndIslandId(UserEntity userId, IslandsEntity islandId) {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("FROM LevelsEntity WHERE userId = :userId AND islandId = :islandId", LevelsEntity.class)
+                .setParameter("userId", userId)
+                .setParameter("islandId", islandId)
+                .uniqueResult();
     }
 }

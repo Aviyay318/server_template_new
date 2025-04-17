@@ -75,4 +75,55 @@ public class LevelUp {
             return totalCorrect / REGULAR_PROMOTION_DIVIDER + MIN_LEVEL;
         }
     }
+
+    public static double getSuccessRate(List<ExerciseHistoryEntity> history) {
+        if (history == null || history.isEmpty()) return 0.0;
+
+        int totalCorrect = 0;
+        int total = history.size();
+
+        for (ExerciseHistoryEntity e : history) {
+            if (e.isCorrectAnswer()) {
+                totalCorrect++;
+            }
+        }
+
+        return (double) totalCorrect / total; // בין 0.0 ל-1.0
+    }
+    public static double getDynamicSuccessRate(List<ExerciseHistoryEntity> history) {
+        if (history == null || history.isEmpty()) return 0.0;
+
+        int totalCorrect = 0;
+        int total = history.size();
+        int streak = 0;
+        int streakBonusCount = 0;
+        int fastCorrect = 0;
+
+        for (ExerciseHistoryEntity e : history) {
+            if (e.isCorrectAnswer()) {
+                totalCorrect++;
+                streak++;
+                if (e.getSolutionTime() < FAST_COMPLETION_TIME) {
+                    fastCorrect++;
+                }
+            } else {
+                if (streak >= 2) { // נחשב סטרייק אם יש לפחות 2 רצופים
+                    streakBonusCount++;
+                }
+                streak = 0;
+            }
+        }
+
+        // אם הסיום היה בסטרייק, קח גם אותו
+        if (streak >= 2) {
+            streakBonusCount++;
+        }
+
+        double baseRate = (double) totalCorrect / total;
+        double bonus = streakBonusCount * 0.05 + fastCorrect * 0.05;
+        double totalScore = baseRate + bonus;
+
+        return Math.min(1.0, totalScore); // לא לעבור את 100%
+    }
+
 }

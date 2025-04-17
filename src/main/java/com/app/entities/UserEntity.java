@@ -9,7 +9,7 @@ public class UserEntity extends BaseEntity{
     private String password;
     private int age;
     private String email;
-    private int level;
+    private int score;
     private String otp;
     private String gender;
     private Date loginTime;
@@ -24,7 +24,7 @@ public class UserEntity extends BaseEntity{
         this.age = age;
         this.email = email;
         this.gender=gender;
-        this.level = 1;
+        this.score = 0;
     }
 
     public Date getLoginTime() {
@@ -99,12 +99,12 @@ public class UserEntity extends BaseEntity{
         this.otp = otp;
     }
 
-    public int getLevel() {
-        return level;
+    public int getScore() {
+        return score;
     }
 
-    public void setLevel(int level) {
-        this.level = level;
+    public void setScore(int score) {
+        this.score = score;
     }
 
     @Override
@@ -116,7 +116,7 @@ public class UserEntity extends BaseEntity{
                 ", password='" + password + '\'' +
                 ", age=" + age +
                 ", email='" + email + '\'' +
-                ", level=" + level +
+                ", level=" + score +
                 ", otp='" + otp + '\'' +
                 ", gender='" + gender + '\'' +
                 '}';

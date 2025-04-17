@@ -1,10 +1,8 @@
 package com.app.controllers;
 
-import com.app.entities.ChildrenNameEntity;
-import com.app.entities.QuestionTypeEntity;
+import com.app.entities.*;
 import com.app.responses.BasicResponse;
 import com.app.responses.LoginResponse;
-import com.app.entities.UserEntity;
 import com.app.responses.OtpResponse;
 import com.app.responses.RegisterResponse;
 import com.app.service.Persist;
@@ -186,6 +184,30 @@ public class GeneralController {
     }
 
     @PostMapping ("/check-otp-to-register")
+    public OtpResponse getRegisterOtp(@RequestBody OtpRequest otpRequest) {
+        System.out.println(otpRequest);
+        String email = otpRequest.getEmail();
+        String otp = otpRequest.getOtp();
+        UserEntity user = unverifiedUsers.get(email);
+        if (user == null){
+            return new OtpResponse(false, "User not found", false);
+        }
+        if (user.getOtp() != null && user.getOtp().equals(otp)){
+            user.setOtp(null);
+            persist.update(user);
+            LevelsEntity userLevel = new LevelsEntity();
+            userLevel.setIsland(this.persist.loadObject(IslandsEntity.class,Constants.ADD_SUB_ISLAND));
+            userLevel.setUser(user);
+            userLevel.setLevel(1);
+            System.out.println(userLevel);
+           this.persist.save(userLevel);
+            return new OtpResponse(true, "OTP verified successfully", true);
+        } else{
+            return new OtpResponse(false, "Invalid OTP", false);
+        }
+    }
+    //TODO IN CLIENT
+    @PostMapping ("/check-otp")
     public OtpResponse getOtp(@RequestBody OtpRequest otpRequest) {
         System.out.println(otpRequest);
         String email = otpRequest.getEmail();
