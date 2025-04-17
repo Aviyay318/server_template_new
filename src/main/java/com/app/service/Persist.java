@@ -93,4 +93,11 @@ public class Persist {
                 .setParameter("islandId", islandId)
                 .uniqueResult();
     }
+
+    public ExerciseHistoryEntity getExerciseByExerciseId(int exerciseId) {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("FROM ExerciseHistoryEntity WHERE exerciseId = :exerciseId", ExerciseHistoryEntity.class)
+                .setParameter("exerciseId", exerciseId)
+                .uniqueResult();
+    }
 }

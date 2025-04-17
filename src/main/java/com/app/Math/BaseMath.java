@@ -15,6 +15,7 @@ public class BaseMath {
 
     public BaseMath() {
         this.random = new Random();
+        generateId();
     }
 
     protected void generateId() {
@@ -22,7 +23,7 @@ public class BaseMath {
     }
 
     public Map<String, Object> getExercise() {
-        if (this.id == 0) generateId();
+
 
         int num1 = this.random.nextInt(Math.max(1, maxRange));
         int num2 = this.operator.equals("-")

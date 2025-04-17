@@ -42,7 +42,8 @@ public static final int NUMBER_OF_MULTIPLE_QUESTION = 25;
         Map<String, Object> exercise = service.getExercise();
         String question = exercise.get("num1") + " " + exercise.get("operator") + " " + exercise.get("num2") + " = ";
         String answer = String.valueOf(exercise.get("solution"));
-        saveExerciseHistory(user, island, level.getLevel(), Constants.ARITHMETIC_OPERATIONS, question, answer, service.getId());
+        int exerciseId =  saveExerciseHistory(user, island, level.getLevel(), Constants.ARITHMETIC_OPERATIONS, question, answer);
+        exercise.put("id",exerciseId);
         return exercise;
     }
 
@@ -50,8 +51,9 @@ public static final int NUMBER_OF_MULTIPLE_QUESTION = 25;
         List<ObjectsEntity> objects = persist.loadList(ObjectsEntity.class);
         List<ChildrenNameEntity> childrenList = persist.loadList(ChildrenNameEntity.class);
         Map<String, Object> result = LiteralProblem.literalProblem(objects, childrenList, service.getMaxRange(), service.getRandom(), service.getOperator());
-        saveExerciseHistory(user, island, level.getLevel(), Constants.LITERAL_PROBLEMS,
-                (String) result.get("question"), String.valueOf(result.get("answer")), service.getId());
+        int exerciseId = saveExerciseHistory(user, island, level.getLevel(), Constants.LITERAL_PROBLEMS,
+                (String) result.get("question"), String.valueOf(result.get("answer")));
+        result.put("id",exerciseId);
         return result;
     }
 
@@ -61,7 +63,8 @@ public static final int NUMBER_OF_MULTIPLE_QUESTION = 25;
         Map<String, Object> options = BaseMath.generateOptions(solution, 5, service.getRandom());
         questionData.putAll(options);
         String question = questionData.get("num1") + " " + questionData.get("operator") + " " + questionData.get("num2") + " = ?";
-        saveExerciseHistory(user, island, level.getLevel(), Constants.MULTIPLE_CHOICE, question, String.valueOf(solution), service.getId());
+        int exerciseId = saveExerciseHistory(user, island, level.getLevel(), Constants.MULTIPLE_CHOICE, question, String.valueOf(solution));
+        questionData.put("id",exerciseId);
         return questionData;
     }
 
@@ -73,20 +76,23 @@ public static final int NUMBER_OF_MULTIPLE_QUESTION = 25;
             exercises.add(service.getValues());
         }
         resultMap.put("exercises", exercises);
-        saveExerciseHistory(user, island, level.getLevel(), Constants.COMPLETE_TABLE, "Complete Table of 25 exercises", "N/A", service.getId());
+       int exerciseId = saveExerciseHistory(user, island, level.getLevel(), Constants.COMPLETE_TABLE, "Complete Table of 25 exercises", "N/A");
+       resultMap.put("id",exerciseId);
         return resultMap;
     }
 
-    private void saveExerciseHistory(UserEntity user, IslandsEntity island, int level, int questionType,
-                                     String question, String answer, int exerciseId) {
+    private int saveExerciseHistory(UserEntity user, IslandsEntity island, int level, int questionType,
+                                     String question, String answer) {
         ExerciseHistoryEntity history = new ExerciseHistoryEntity();
+        persist.save(history);
         history.setUserId(user);
         history.setLevel(level);
         history.setIslands(island);
         history.setQuestionType(persist.loadObject(QuestionTypeEntity.class, questionType));
         history.setExercise(question);
         history.setAnswer(answer);
-        history.setExerciseId(exerciseId);
+        history.setExerciseId(history.getId());
         persist.save(history);
+        return history.getId();
     }
 }
