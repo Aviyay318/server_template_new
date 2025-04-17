@@ -14,6 +14,8 @@ public class AddAndSubIslandService {
 
     @Autowired
     private Persist persist;
+public static final int NUMBER_OF_MULTIPLE_QUESTION = 25;
+
 
     public Map<String, Object> generateExercise(String token, int questionType, int islandId) {
         UserEntity user = this.persist.getUserByToken(token);
@@ -66,7 +68,7 @@ public class AddAndSubIslandService {
     private Map<String, Object> generateTableExercise(UserEntity user, IslandsEntity island, LevelsEntity level, AddSubtractService service) {
         Map<String, Object> resultMap = new HashMap<>();
         List<Map<String, Object>> exercises = new ArrayList<>();
-        for (int i = 0; i < 25; i++) {
+        for (int i = 0; i < NUMBER_OF_MULTIPLE_QUESTION; i++) {
             service.getExercise();
             exercises.add(service.getValues());
         }
