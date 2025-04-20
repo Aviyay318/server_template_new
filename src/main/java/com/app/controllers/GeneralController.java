@@ -29,7 +29,7 @@ public class GeneralController {
 
     @PostConstruct
     public void init(){
-      //  enterInformationToTable();
+        //  enterInformationToTable();
 //        for (int i = 0; i < DataGenerator.boyNames.length; i++) {
 //            ChildrenNameEntity childrenName = new ChildrenNameEntity();
 //            childrenName.setName(DataGenerator.boyNames[i]);
@@ -57,21 +57,20 @@ public class GeneralController {
     }
 
     private void enterInformationToTable() {
-       if (this.persist.loadList(QuestionTypeEntity.class).isEmpty()){
-           for (int i = 0; i < Constants.QUESTION_TYPE.length; i++) {
-               this.persist.save(Constants.QUESTION_TYPE[i]);
-           }
-       }
+        if (this.persist.loadList(QuestionTypeEntity.class).isEmpty()){
+            for (int i = 0; i < Constants.QUESTION_TYPE.length; i++) {
+                this.persist.save(Constants.QUESTION_TYPE[i]);
+            }
+        }
     }
     @RequestMapping("/forgotten-password")
     public BasicResponse forgottenPassword(@RequestParam String email) {
         String message = "האימייל לא קיים במערכת";
         System.out.println("email param: " + email);
-   UserEntity user = this.persist.getUserByEmail(email);
-    System.out.println(email);
-    System.out.println(user);;
-    boolean success = false;
-    String otp = null;
+        UserEntity user = this.persist.getUserByEmail(email);
+        System.out.println(user);
+        boolean success = false;
+        String otp = null;
         if (user!=null){
             otp = GeneralUtils.generateOtp();
             System.out.println(otp);
@@ -82,6 +81,7 @@ public class GeneralController {
             boolean emailSent = ApiEmailProcessor.sendEmail(email, "שחזור סיסמא", "Here is your code: " + otp);
             System.out.println("14 : " + emailSent);
         }
+        System.out.println(success + message);
         return new BasicResponse(success,message);
     }
 //
@@ -117,38 +117,19 @@ public class GeneralController {
 
     @PostMapping("/register")
     public RegisterResponse registerUser (@RequestBody UserEntity user) {
-        System.out.println("Received User " + user);
-        System.out.println("1");
         boolean success = false;
-        System.out.println("2");
         Integer errorCode = Constants.EMAIL_EXIST;
-        System.out.println("3");
         String otp = null;
-        System.out.println("4");
-
         if (user != null && persist.getUserByEmail(user.getEmail()) == null) {
-            System.out.println("5");
             otp = GeneralUtils.generateOtp();
-            System.out.println("6");
             user.setOtp(otp);
-            System.out.println("7: " + user.getOtp());
             if (user.getPassword() == null || user.getPassword().trim().isEmpty()) {
-                System.out.println("8");
                 System.out.println("Password is: " + user.getPassword());
             } else{
-                System.out.println("9");
                 String hashed = GeneralUtils.hashMd5(user.getEmail(), user.getPassword());
-                System.out.println("10 : " + hashed);
                 user.setPassword(hashed);
-                System.out.println("11 : " + user.getPassword());
                 unverifiedUsers.put(user.getEmail(),user);
-                System.out.println("12 : unverified user " + unverifiedUsers.get(user.getEmail()));
-                System.out.println("13 : unverified user email " + unverifiedUsers.get(user.getEmail()).getEmail());
-                System.out.println("13 x2 : supposedly user email " + user.getEmail());
-
-                boolean emailSent = ApiEmailProcessor.sendEmail(user.getEmail(), "OTP Verification", "Here is your code: " + otp);
-                System.out.println("14 : " + emailSent);
-
+                boolean emailSent = ApiEmailProcessor.sendEmail(user.getEmail(), "וד אימות להרשמה", "הקוד שלך הוא: " + otp);
                 System.out.println("OTP sent: " + emailSent);
                 success = true;
                 errorCode=null;
@@ -159,29 +140,35 @@ public class GeneralController {
         return new RegisterResponse(success,errorCode,otp);
     }
 
-    @RequestMapping(value = "/login", method = RequestMethod.POST)
+    @PostMapping("/login")
     public LoginResponse login(@RequestBody LoginRequest request) {
         String email = request.getEmail();
         String password = request.getPassword();
         boolean success = false;
         String token = null;
         boolean isAdmin = false;
+
         String hashed = GeneralUtils.hashMd5(email, password);
-        System.out.println(hashed);
         UserEntity user = this.persist.getUserByEmailAndPassword(email);
 
-        if (user!=null){
-              if (user.getPassword().equals(hashed)||Constants.ADMIN_EMAIL.equals(email)&&Constants.ADMIN_PASSWORD.equals(password)) {
-                success = true;
-                token = hashed;
-             if (Constants.ADMIN_EMAIL.equals(email)){
-                 isAdmin = true;
-             }
+        if (user != null && user.getPassword().equals(hashed)) {
+            success = true;
+            token = hashed;
+
+            if (Constants.ADMIN_EMAIL.equals(email)) {
+                isAdmin = true;
             }
 
+            String otp = GeneralUtils.generateOtp();
+            user.setOtp(otp);
+            this.persist.save(user); // or update
+            boolean emailSent = ApiEmailProcessor.sendEmail(email, "קוד אימות להתחברות", "הקוד שלך הוא: " + otp);
+            System.out.println("OTP sent: " + emailSent);
         }
-      return new LoginResponse(success,token,isAdmin);
+
+        return new LoginResponse(success, token, isAdmin);
     }
+
 
     @PostMapping ("/check-otp-to-register")
     public OtpResponse getRegisterOtp(@RequestBody OtpRequest otpRequest) {
@@ -207,21 +194,26 @@ public class GeneralController {
         }
     }
     //TODO IN CLIENT
-    @PostMapping ("/check-otp")
+    @PostMapping("/check-otp")
     public OtpResponse getOtp(@RequestBody OtpRequest otpRequest) {
         System.out.println(otpRequest);
         String email = otpRequest.getEmail();
         String otp = otpRequest.getOtp();
-        UserEntity user = unverifiedUsers.get(email);
-        if (user == null){
+
+        // Use the database, NOT unverifiedUsers
+        UserEntity user = this.persist.getUserByEmail(email);
+
+        if (user == null) {
             return new OtpResponse(false, "User not found", false);
         }
-        if (user.getOtp() != null && user.getOtp().equals(otp)){
+
+        if (user.getOtp() != null && user.getOtp().equals(otp)) {
             user.setOtp(null);
-            persist.update(user);
+            this.persist.update(user);
             return new OtpResponse(true, "OTP verified successfully", true);
-        } else{
+        } else {
             return new OtpResponse(false, "Invalid OTP", false);
         }
     }
+
 }

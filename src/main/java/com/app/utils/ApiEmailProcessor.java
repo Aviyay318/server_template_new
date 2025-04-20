@@ -4,7 +4,13 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
+import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.core.io.ClassPathResource;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,14 +21,14 @@ import java.util.Properties;
 
 
 public class ApiEmailProcessor {
-        public static void main(String[] args) {
-          sendEmail("ramrevivo0@gmail.com","try","try to");
+    public static void main(String[] args) {
+        sendEmail("ramrevivo0@gmail.com","try","try to");
     }
     public static final String SENDER_EMAIL = "kidslearning580@gmail.com";
     public static final String SENDER_PASSWORD = "rvrr dtop tcks yzpz";
     public static final String PERSONAL = "AYRD";
 
-    public static boolean sendEmail(String recipient, String subject, String content) {
+    public static boolean sendEmail(String recipient, String subject, String otpCode) {
         Properties properties = getProperties();
 
         Session session = Session.getInstance(properties, new Authenticator() {
@@ -33,22 +39,17 @@ public class ApiEmailProcessor {
         });
 
         try {
-
             Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(SENDER_EMAIL,PERSONAL));
+            message.setFrom(new InternetAddress(SENDER_EMAIL, PERSONAL));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipient));
             message.setSubject(subject);
 
-            MimeBodyPart textPart = getMimeBodyPart(subject, content);
+            File resizedImage = resizeImage();
+
+            MimeBodyPart textPart = getMimeBodyPart(subject, otpCode);
 
             MimeBodyPart imagePart = new MimeBodyPart();
-            ClassPathResource resource = new ClassPathResource("ae4fc745b13baeb8e8b5a4836af3d288.png");
-
-            try (InputStream inputStream = resource.getInputStream()) {
-                Path tempFile = Files.createTempFile("ae4fc745b13baeb8e8b5a4836af3d288", ".png");
-                Files.copy(inputStream, tempFile, StandardCopyOption.REPLACE_EXISTING);
-                imagePart.attachFile(tempFile.toFile());
-            }
+            imagePart.attachFile(resizedImage);
             imagePart.setContentID("<profileImage>");
             imagePart.setDisposition(MimeBodyPart.INLINE);
 
@@ -59,16 +60,24 @@ public class ApiEmailProcessor {
             message.setContent(multipart);
 
             Transport.send(message);
-            System.out.println("Email sent successfully to " + recipient);
+            System.out.println("Email sent to " + recipient);
             return true;
-        } catch (MessagingException e) {
-            System.out.println("Error sending email: " + e.getMessage() + e.getCause());
-            return false;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            return false;
         }
     }
-
+    private static File resizeImage() throws Exception {
+        ClassPathResource resource = new ClassPathResource("boy_otp.png");
+        Path tempFile = Files.createTempFile("boy_otp_resized", ".png");
+        try (InputStream inputStream = resource.getInputStream()) {
+            Thumbnails.of(inputStream)
+                    .size(550, 550)
+                    .outputFormat("png")
+                    .toFile(tempFile.toFile());
+        }
+        return tempFile.toFile();
+    }
     private static Properties getProperties() {
         final String host = "smtp.gmail.com";
         final int port = 465;
@@ -84,24 +93,25 @@ public class ApiEmailProcessor {
         return properties;
     }
 
-    private static MimeBodyPart getMimeBodyPart(String subject, String content) throws MessagingException {
+    private static MimeBodyPart getMimeBodyPart(String subject, String otp) throws MessagingException {
         MimeBodyPart textPart = new MimeBodyPart();
-        String htmlContent = "<html>" +
-                "<head>" +
-                "  <style type='text/css'>" +
-                "    body { text-align: center; font-size: 16px; font-weight: 400; margin: 0; padding: 0; }" +
-                "    h3 { font-size: 20px; font-weight: bold; margin-bottom: 1rem; }" +
-                "    p { margin: 0 0 1rem 0; }" +
-                "    .otp-code { font-size: 28px; font-weight: bold; color: #ff7200; }" +
-                "  </style>" +
-                "</head>" +
-                "<body>" +
-                "  <h3>" + subject + "</h3>" +
-                "  <p>" + content.replace("\n", "<br>") + "</p>" +
-                "  <div class='otp-code'>Your OTP: " + content + "</div>" +
-                "</body>" +
-                "</html>";
+        String htmlContent = """
+        <html dir="rtl">
+        <body style="font-family: 'Fredoka', Arial, sans-serif; text-align: center; direction: rtl; background-color: #ffffff; padding: 0; margin: 0;">
+            <div style="max-width: 600px; margin: auto;">
+                <img src="cid:profileImage" alt="OTP" style="width: 100%; max-width: 550px; display: block; margin: 0 auto;" />
+                <h1 style="font-size: 36px; color: #222; margin-top: 20px;">"""+subject+"""
+                </h1>
+                <p style="font-size: 32px; font-weight: bold; color: #007bff;">""" + otp + """
+            </p>
+            </div>
+        </body>
+        </html>
+        """;
+
         textPart.setContent(htmlContent, "text/html; charset=UTF-8");
         return textPart;
     }
+
+
 }
