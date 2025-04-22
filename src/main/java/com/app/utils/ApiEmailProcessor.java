@@ -4,7 +4,7 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
-import net.coobird.thumbnailator.Thumbnails;
+//import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.core.io.ClassPathResource;
 
 import javax.imageio.ImageIO;
@@ -70,12 +70,12 @@ public class ApiEmailProcessor {
     private static File resizeImage() throws Exception {
         ClassPathResource resource = new ClassPathResource("boy_otp.png");
         Path tempFile = Files.createTempFile("boy_otp_resized", ".png");
-        try (InputStream inputStream = resource.getInputStream()) {
-            Thumbnails.of(inputStream)
-                    .size(550, 550)
-                    .outputFormat("png")
-                    .toFile(tempFile.toFile());
-        }
+//        try (InputStream inputStream = resource.getInputStream()) {
+//            Thumbnails.of(inputStream)
+//                    .size(550, 550)
+//                    .outputFormat("png")
+//                    .toFile(tempFile.toFile());
+//        }
         return tempFile.toFile();
     }
     private static Properties getProperties() {

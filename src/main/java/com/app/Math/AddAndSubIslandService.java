@@ -14,7 +14,7 @@ public class AddAndSubIslandService {
 
     @Autowired
     private Persist persist;
-public static final int NUMBER_OF_MULTIPLE_QUESTION = 25;
+public static final int NUMBER_OF_MULTIPLE_QUESTION = 16;
 
 
     public Map<String, Object> generateExercise(String token, int questionType, int islandId) {

@@ -21,6 +21,18 @@ public class UserController {
     @Autowired
     private Persist persist;
 
+    @RequestMapping("/get-user-score")
+    public int getUserScore(@RequestParam String token){
+        UserEntity userEntity= null;
+        if (!token.isEmpty()){
+            userEntity  =  this.persist.getUserByToken(token);
+        }
+        System.out.println("token: "+token);
+
+        assert userEntity != null;
+        return userEntity.getScore();
+    }
+
 
     @RequestMapping("/get-user-data")
     public UserEntity getUserData(@RequestParam String token){
