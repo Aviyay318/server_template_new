@@ -143,12 +143,18 @@ public class IslandsController {
         return config;
     }
 
-    @RequestMapping("get-level-by-island")
+    @RequestMapping("/get-level-by-island")
     public int getLevelByIsland(String token,int islandId){
         UserEntity user = this.persist.getUserByToken(token);
         IslandsEntity island = this.persist.loadObject(IslandsEntity.class,islandId);
         LevelsEntity level =  this.persist.getLevelByUserIdAndIslandId(user,island);
         return level.getLevel();
+    }
+    @RequestMapping("/get-level-by-user")
+    public List<LevelsEntity>  getLevelByUser(String token){
+        UserEntity user = this.persist.getUserByToken(token);
+        List<LevelsEntity> levels =  this.persist.getLevelsByUserId(user);
+        return levels;
     }
 
      @RequestMapping("/islands")
