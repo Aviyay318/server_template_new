@@ -103,4 +103,19 @@ private int exerciseId;
     public void setSolutionTime(double solutionTime) {
         this.solutionTime = solutionTime;
     }
+
+    @Override
+    public String toString() {
+        return "ExerciseHistoryEntity{" +
+                "userId=" + userId +
+                ", exercise='" + exercise + '\'' +
+                ", level=" + level +
+                ", isCorrectAnswer=" + isCorrectAnswer +
+                ", answer='" + answer + '\'' +
+                ", questionType=" + questionType +
+                ", solutionTime=" + solutionTime +
+                ", islands=" + islands +
+                ", exerciseId=" + exerciseId +
+                '}';
+    }
 }

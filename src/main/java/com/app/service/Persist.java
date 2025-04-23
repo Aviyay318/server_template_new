@@ -100,4 +100,19 @@ public class Persist {
                 .setParameter("exerciseId", exerciseId)
                 .uniqueResult();
     }
+
+    public List<ExerciseHistoryEntity> getExercisesByUserIdAndLevel(UserEntity userId, int level) {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("FROM ExerciseHistoryEntity WHERE userId = :userId AND level = :level", ExerciseHistoryEntity.class)
+                .setParameter("userId", userId)
+                .setParameter("level", level)
+                .list();
+    }
+
+    public List<LevelsEntity> getLevelsByUserId(UserEntity userId) {
+        return this.sessionFactory.getCurrentSession()
+                .createQuery("FROM LevelsEntity WHERE userId = :userId ", LevelsEntity.class)
+                .setParameter("userId", userId)
+                .list();
+    }
 }

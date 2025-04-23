@@ -41,13 +41,16 @@ public class BaseMath {
         return values;
     }
 
-    private int calculate(int num1, int num2) {
+    public int calculate(int num1, int num2) {
         return switch (this.operator) {
             case "+" -> num1 + num2;
             case "-" -> num1 - num2;
-            default -> throw new IllegalArgumentException("Invalid operator: " + operator);
+            case "*" -> num1 * num2;
+            case "/" -> num1 / num2;
+            default -> throw new IllegalArgumentException("Invalid operator: " + this.operator);
         };
     }
+
     public static Map<String, Object> generateOptions(int solution, int range, Random random) {
         Set<Integer> optionsSet = new HashSet<>();
         int min = Math.max(0, solution - range);

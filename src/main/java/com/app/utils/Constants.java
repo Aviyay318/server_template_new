@@ -21,6 +21,7 @@ public class Constants {
     public static final int FAST_COMPLETION_TIME = 60 ;
 
     public static final int ADD_SUB_ISLAND = 1;
+    public static final int MULTIPLICATION_ISLAND = 2; // או המספר הרלוונטי
 
 
 
@@ -32,4 +33,15 @@ public class Constants {
             "השלם לוח",
             "שאלה אמריקאית"
     };
+    public class IslandConstants {
+        public static final int ISLAND_ADDITION_SUBTRACTION = 0;
+        public static final int ISLAND_MULTIPLICATION = 50;
+        public static final int ISLAND_DIVISION_FRACTIONS = 100;
+        public static final int ISLAND_EVEN_ODD = 150;
+        public static final int ISLAND_LONG_ADD_SUB = 200;
+        public static final int ISLAND_LONG_MUL_DIV = 250;
+        public static final int ISLAND_NIGHTMARE_MIXED = 300;
+        public static final int ISLAND_EQUATIONS = 350;
+    }
+
 }

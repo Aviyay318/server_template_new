@@ -107,6 +107,11 @@ public class UserController {
         return config;
     }
 
+    @RequestMapping("/user-exercise-history")
+    public List<ExerciseHistoryEntity> userExerciseHistory(String token){
+        UserEntity user = this.persist.getUserByToken(token);
+        return this.persist.getExercisesByUserId(user);
+    }
 
 
 }
