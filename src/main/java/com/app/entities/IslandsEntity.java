@@ -31,4 +31,12 @@ public class IslandsEntity extends BaseEntity{
     public void setScore(int score) {
         Score = score;
     }
+
+    @Override
+    public String toString() {
+        return "IslandsEntity{" +
+                "name='" + name + '\'' +
+                ", Score=" + Score +
+                '}';
+    }
 }

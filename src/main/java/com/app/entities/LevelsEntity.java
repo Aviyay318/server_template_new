@@ -37,4 +37,13 @@ public class LevelsEntity extends BaseEntity{
     public void setLevel(int level) {
         this.level = level;
     }
+
+    @Override
+    public String toString() {
+        return "LevelsEntity{" +
+                "user=" + user +
+                ", island=" + island +
+                ", level=" + level +
+                '}';
+    }
 }

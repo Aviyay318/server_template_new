@@ -44,7 +44,9 @@ public class IslandsController {
 
         UserEntity user = this.persist.getUserByToken(token);
         IslandsEntity island = this.persist.loadObject(IslandsEntity.class,Constants.ADD_SUB_ISLAND);
+        System.out.println(island);
         LevelsEntity islandLevel = this.persist.getLevelByUserIdAndIslandId(user,island);
+        System.out.println(islandLevel);
         return multiplicationIslandService.generateExercise(user,island, islandLevel, questionType);
     }
 
@@ -84,7 +86,8 @@ public class IslandsController {
            IslandsEntity island = this.persist.loadObject(IslandsEntity.class,exerciseHistory.getIslands().getId());
            System.out.println(island.getName());
            LevelsEntity islandLevel = this.persist.getLevelByUserIdAndIslandId(user,island);
-           List<ExerciseHistoryEntity> exerciseHistoryList = this.persist.getExercisesByUserIdAndLevel(user,islandLevel.getLevel());
+//           List<ExerciseHistoryEntity> exerciseHistoryList = this.persist.getExercisesByUserIdAndLevel(user,islandLevel.getLevel());
+           List<ExerciseHistoryEntity> exerciseHistoryList = this.persist.getExercisesByUserIdAndIsland(user,islandLevel);
            int level = LevelUp.getLevelOfUser(exerciseHistoryList);
            System.out.println("level: " + level);
            islandLevel.setLevel(level);
