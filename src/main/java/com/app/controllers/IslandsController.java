@@ -39,7 +39,7 @@ public class IslandsController {
         LevelsEntity islandLevel = this.persist.getLevelByUserIdAndIslandId(user,island);
         return addAndSubIslandService.generateExercise(user,island, islandLevel, questionType);
     }
-    @RequestMapping("/multiplication-table")
+    @RequestMapping("/multiplication")
     public Map<String, Object> multiplicationTable(@RequestParam String token, @RequestParam int questionType) {
 
         UserEntity user = this.persist.getUserByToken(token);
@@ -157,7 +157,7 @@ public class IslandsController {
      }
     @PostConstruct
     public void init() {
-       System.out.println(multiplicationTable("C34B1B2B6FCFC8307CE1A78006DD6A0E",4));
+//       System.out.println(multiplicationTable("C34B1B2B6FCFC8307CE1A78006DD6A0E",4));
     //   System.out.println(checkExercise(14,"5",10));
     }
 }
