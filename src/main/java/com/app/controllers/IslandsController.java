@@ -38,6 +38,7 @@ public class IslandsController {
     @RequestMapping("/check-exercise")
     public BasicResponse checkExercise(String token , int exerciseId, String answer, int solution_time,boolean usedClue ,int questionType){
         UserEntity user = this.persist.getUserByToken(token);
+        System.out.println("s: " + solution_time);
        boolean success = false;
        String message = "wrong question id";
        int score = 1;
