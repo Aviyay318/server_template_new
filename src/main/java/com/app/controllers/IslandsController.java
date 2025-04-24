@@ -43,7 +43,7 @@ public class IslandsController {
     public Map<String, Object> multiplicationTable(@RequestParam String token, @RequestParam int questionType) {
 
         UserEntity user = this.persist.getUserByToken(token);
-        IslandsEntity island = this.persist.loadObject(IslandsEntity.class,Constants.ADD_SUB_ISLAND);
+        IslandsEntity island = this.persist.loadObject(IslandsEntity.class,Constants.MULTIPLICATION_ISLAND);
         System.out.println(island);
         LevelsEntity islandLevel = this.persist.getLevelByUserIdAndIslandId(user,island);
         System.out.println(islandLevel);
@@ -53,6 +53,7 @@ public class IslandsController {
     @RequestMapping("/check-exercise")
     public CheckExerciseResponse checkExercise(String token , int exerciseId, String answer, int solution_time, boolean usedClue , int questionType){
         UserEntity user = this.persist.getUserByToken(token);
+        String islandOpen = null;
         System.out.println("s: " + solution_time);
        boolean success = false;
        String message = "wrong question id";
@@ -92,12 +93,13 @@ public class IslandsController {
            System.out.println("level: " + level);
            islandLevel.setLevel(level);
            this.persist.save(islandLevel);
-           openIslands(score,user);
+           islandOpen =  openIslands(score,user);
        }catch (Exception e){}
-        return new CheckExerciseResponse(success,message,user);
+        return new CheckExerciseResponse(success,message,user,islandOpen);
     }
 
-    private void openIslands(int score, UserEntity user) {
+    private String openIslands(int score, UserEntity user) {
+        String islandOpen = null;
         List<IslandsEntity> allIslands = this.persist.loadList(IslandsEntity.class);
         List<LevelsEntity> userLevels = this.persist.getLevelsByUserId(user);
 
@@ -108,10 +110,12 @@ public class IslandsController {
                 if (!alreadyUnlocked) {
                     LevelsEntity newLevel = new LevelsEntity(user, island, 1);
                     this.persist.save(newLevel);
+                    islandOpen = "Island " + island.getName() + " unlocked for you";
                     System.out.println("Island " + island.getName() + " unlocked for user " + user.getUsername());
                 }
             }
         }
+        return islandOpen;
     }
     @RequestMapping("/get-user-open-island")
     public List<Map<String, Object>> getUserOpenIsland(String token) {

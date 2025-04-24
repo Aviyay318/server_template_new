@@ -119,8 +119,10 @@ public class GeneralController {
     public RegisterResponse registerUser (@RequestBody UserEntity user) {
         boolean success = false;
         Integer errorCode = Constants.EMAIL_EXIST;
+        System.out.println(user.getPassword());
         String otp = null;
-        if (user != null && persist.getUserByEmail(user.getEmail()) == null) {
+        System.out.println(persist.getUserByEmail(user.getEmail()));
+        if (persist.getUserByEmail(user.getEmail()) == null) {
             otp = GeneralUtils.generateOtp();
             user.setOtp(otp);
             if (user.getPassword() == null || user.getPassword().trim().isEmpty()) {

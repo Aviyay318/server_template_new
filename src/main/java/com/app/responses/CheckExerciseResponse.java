@@ -5,6 +5,7 @@ import com.app.entities.UserEntity;
 public class CheckExerciseResponse extends BasicResponse{
     private UserEntity user;
     private int level;
+    private String islandOpen;
     public CheckExerciseResponse(boolean success) {
         super(success);
     }
@@ -25,8 +26,17 @@ public class CheckExerciseResponse extends BasicResponse{
         this.level = level;
     }
 
-    public CheckExerciseResponse(boolean success, String message, UserEntity user) {
+    public String getIslandOpen() {
+        return islandOpen;
+    }
+
+    public void setIslandOpen(String islandOpen) {
+        this.islandOpen = islandOpen;
+    }
+
+    public CheckExerciseResponse(boolean success, String message, UserEntity user,String islandOpen) {
         super(success, message);
         this.user = user;
+        this.islandOpen = islandOpen;
     }
 }

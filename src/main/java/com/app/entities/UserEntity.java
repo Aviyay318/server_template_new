@@ -1,11 +1,14 @@
 package com.app.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Date;
 
 public class UserEntity extends BaseEntity{
     private String firstName;
     private String lastName;
     private String username;
+    @JsonIgnore
     private String password;
     private int age;
     private String email;
