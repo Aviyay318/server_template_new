@@ -73,7 +73,6 @@ public class LiteralProblem {
         result.put("svg2", obj2.getSvg());
         result.put("imageHint", imageHint);
 
-        System.out.println(result);
         return result;
     }
 
