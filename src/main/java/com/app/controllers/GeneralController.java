@@ -12,11 +12,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 @RestController
 public class GeneralController {
     private HashMap<String,UserEntity> unverifiedUsers = new HashMap<>();
+    private List<String> loggedUsers = new ArrayList<>();
 
     @Autowired
     private Persist persist;
@@ -119,6 +122,7 @@ public class GeneralController {
     public RegisterResponse registerUser (@RequestBody UserEntity user) {
         boolean success = false;
         Integer errorCode = Constants.EMAIL_EXIST;
+        System.out.println("user" + user);
         System.out.println(user.getPassword());
         String otp = null;
         System.out.println(persist.getUserByEmail(user.getEmail()));
@@ -156,7 +160,7 @@ public class GeneralController {
         if (user != null && user.getPassword().equals(hashed)) {
             success = true;
             token = hashed;
-
+            this.loggedUsers.add(token);
             if (Constants.ADMIN_EMAIL.equals(email)) {
                 isAdmin = true;
             }
@@ -171,6 +175,15 @@ public class GeneralController {
         return new LoginResponse(success, token, isAdmin);
     }
 
+    @PostMapping("/logout")
+    public boolean logout(String token){
+        boolean isLogout = false;
+        if (!this.loggedUsers.stream().filter(user-> user.equals(token)).toList().isEmpty()){
+            this.unverifiedUsers.remove(token);
+            isLogout = true;
+        }
+        return isLogout;
+    }
 
     @PostMapping ("/check-otp-to-register")
     public OtpResponse getRegisterOtp(@RequestBody OtpRequest otpRequest) {
@@ -190,6 +203,9 @@ public class GeneralController {
             userLevel.setLevel(1);
             System.out.println(userLevel);
            this.persist.save(userLevel);
+            String message = String.format("היי %s, מזל טוב להצטרפותכם לאתר לימוד חשבון! אני הולכת לבדוק אתכם ב-7 עיניים!!! חחחחח. אם לא תלמדו, תתחרטו.", user.getUsername());
+            boolean emailSent = ApiEmailProcessor.sendEmail(user.getEmail(),"הצטרפות לאתר הכי מושלם שמלמד חשבון",message);
+            System.out.println(emailSent);
             return new OtpResponse(true, "OTP verified successfully", true);
         } else{
             return new OtpResponse(false, "Invalid OTP", false);

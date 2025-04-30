@@ -72,6 +72,8 @@ public class IslandsController {
                    }else {
                        score++;
                    }
+               }else {
+                   score = 2;
                }
                success = true;
                message = "great gob";
