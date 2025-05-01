@@ -46,7 +46,6 @@ public class BaseMath {
         this.values.put("num2", num2);
         this.values.put("equalsSign", "=");
         this.values.put("solution", calculate(num1, num2));
-
         return values;
     }
 

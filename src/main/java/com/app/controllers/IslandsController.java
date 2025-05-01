@@ -56,8 +56,10 @@ public class IslandsController {
     }
 @RequestMapping("/division")
     public Map<String, Object> divisionIsland(@RequestParam String token, @RequestParam int questionType) {
+    System.out.println(token+"toDDD");
+    System.out.println(questionType+"qaDDD");
         UserEntity user = persist.getUserByToken(token);
-        IslandsEntity island = persist.loadObject(IslandsEntity.class, 999); // תעדכן לפי ID אמיתי
+        IslandsEntity island = persist.loadObject(IslandsEntity.class, Constants.DIVISION_ISLAND);
         LevelsEntity level = persist.getLevelsByUserId(user).stream()
                 .filter(l -> l.getIsland().getId() == island.getId())
                 .findFirst()
@@ -69,7 +71,7 @@ public class IslandsController {
     @RequestMapping("/floating-point")
     public Map<String, Object> floatingPointIsland(@RequestParam String token, @RequestParam int questionType) {
         UserEntity user = persist.getUserByToken(token);
-        IslandsEntity island = persist.loadObject(IslandsEntity.class, 123); // ID של האי עם תרגילי עשרוניים
+        IslandsEntity island = persist.loadObject(IslandsEntity.class,Constants.ISLAND_DECIMALS_AND_FRACTIONS );
         LevelsEntity level = persist.getLevelsByUserId(user).stream()
                 .filter(l -> l.getIsland().getId() == island.getId())
                 .findFirst()
@@ -77,6 +79,13 @@ public class IslandsController {
 
         return floatingPointIslandService.generateExercise(user, island, level, questionType);
     }
+
+
+
+    public static final int ISLAND_LONG_ADDITION_AND_SUBTRACTION = 5;
+    public static final int ISLAND_LONG_MULTIPLICATION_AND_DIVISION = 6;
+    public static final int ISLAND_MIXED_CHALLENGE = 7; // The Nightmare Island
+    public static final int ISLAND_EQUATIONS = 8;
 
     @RequestMapping("/check-exercise")
     public CheckExerciseResponse checkExercise(String token , int exerciseId, String answer, int solution_time, boolean usedClue , int questionType){

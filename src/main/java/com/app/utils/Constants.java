@@ -21,8 +21,13 @@ public class Constants {
     public static final int FAST_COMPLETION_TIME = 60 ;
 
     public static final int ADD_SUB_ISLAND = 1;
-    public static final int MULTIPLICATION_ISLAND = 2; // או המספר הרלוונטי
-
+    public static final int MULTIPLICATION_ISLAND = 2;
+    public static final int DIVISION_ISLAND = 3;
+    public static final int ISLAND_DECIMALS_AND_FRACTIONS = 4;
+    public static final int ISLAND_LONG_ADDITION_AND_SUBTRACTION = 5;
+    public static final int ISLAND_LONG_MULTIPLICATION_AND_DIVISION = 6;
+    public static final int ISLAND_MIXED_CHALLENGE = 7; // The Nightmare Island
+    public static final int ISLAND_EQUATIONS = 8;
 
 
     public static final String[] QUESTION_TYPE = {
