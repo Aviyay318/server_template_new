@@ -9,6 +9,7 @@ import com.app.entities.UserEntity;
 import com.app.responses.CheckExerciseResponse;
 import com.app.service.Persist;
 import com.app.utils.Constants;
+import com.app.utils.IslandUtils;
 import com.app.utils.LevelUp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -120,25 +121,8 @@ public class IslandsController {
         return islandOpen;
     }
     @RequestMapping("/get-user-open-island")
-    public List<Map<String, Object>> getUserOpenIsland(String token) {
-        List<Map<String, Object>> openIslands = new ArrayList<>();
-        List<IslandsEntity> allIslands = this.persist.loadList(IslandsEntity.class);
-        UserEntity user = this.persist.getUserByToken(token);
-        List<LevelsEntity> islandOfUser = this.persist.getLevelsByUserId(user);
-
-        Set<Integer> userIslandIds = islandOfUser.stream()
-                .map(level -> level.getIsland().getId())
-                .collect(Collectors.toSet());
-
-        for (IslandsEntity island : allIslands) {
-            Map<String, Object> islandData = new HashMap<>();
-            islandData.put("id", island.getId());
-            islandData.put("name", island.getName());
-            islandData.put("isOpen", userIslandIds.contains(island.getId()));
-            openIslands.add(islandData);
-        }
-
-        return openIslands;
+    public List<Map<String, Object>> getUserOpenIsland(@RequestParam String token) {
+        return IslandUtils.getIslandsWithOpenStatus(persist, token);
     }
 
     @RequestMapping("/feedback")

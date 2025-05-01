@@ -1,14 +1,16 @@
 package com.app.controllers;
 
+import com.app.entities.ExerciseHistoryEntity;
 import com.app.entities.UserEntity;
 import com.app.entities.NotificationEntity;
 import com.app.responses.BasicResponse;
 import com.app.service.Persist;
 import com.app.utils.ApiEmailProcessor;
+import com.app.utils.IslandUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/admin")
@@ -64,4 +66,63 @@ public class AdminController {
         }
         return List.of();
     }
+
+    @RequestMapping("/get-user-info")
+    public Map<String,Object> getUserInfo(String token, String email) {
+        System.out.println(email + " email");
+        System.out.println(token + "token");
+        Map<String,Object> userInfo = new HashMap<>();
+        System.out.println(token);
+        UserEntity admin = persist.getUserByToken(token);
+        if (admin != null && ADMIN.equals(admin.getUsername())) {
+           UserEntity user = this.persist.getUserByEmail(email);
+           if (user!=null){
+               List<ExerciseHistoryEntity> userHistory = this.persist.getExercisesByUserId(user);
+
+               userInfo.put("username",user.getUsername());
+               userInfo.put("correctAnswer",userHistory.stream().filter(ExerciseHistoryEntity::isCorrectAnswer).toList().size());
+               userInfo.put("wrongAnswer",userHistory.stream().filter(exerciseHistoryEntity -> !exerciseHistoryEntity.isCorrectAnswer()).toList().size());
+               userInfo.put("openIsland" , IslandUtils.getIslandsWithOpenStatus(this.persist,user.getPassword()));
+               userInfo.put("score",user.getScore());
+               userInfo.put("exercise",userHistory.size());
+               userInfo.put("userHistory",userHistory);
+           }
+        }
+        System.out.println(userInfo);
+return userInfo;
+    }
+
+    @GetMapping("/statistics")
+    public Map<String, Object> getSystemStatistics(@RequestParam String token) {
+        List<UserEntity> users = this.persist.loadList(UserEntity.class);
+        List<ExerciseHistoryEntity> history = this.persist.loadList(ExerciseHistoryEntity.class);
+
+        int totalUsers = users.size();
+        int totalExercises = history.size();
+        long totalCorrect = history.stream().filter(ExerciseHistoryEntity::isCorrectAnswer).count();
+        double avgScore = users.stream().mapToInt(UserEntity::getScore).average().orElse(0);
+
+        double avgOpenIslands = users.stream()
+                .mapToInt(user -> IslandUtils.getOpenIslandsForUser(persist, user).size())
+                .average()
+                .orElse(0);
+
+        Optional<UserEntity> topUser = users.stream()
+                .max(Comparator.comparingInt(u ->
+                        (int) history.stream()
+                                .filter(e -> e.getUserId().equals(u) && e.isCorrectAnswer())
+                                .count()
+                ));
+
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("totalUsers", totalUsers);
+        stats.put("totalExercises", totalExercises);
+        stats.put("avgCorrectRate", totalExercises == 0 ? 0 : (totalCorrect * 100.0) / totalExercises);
+        stats.put("avgScore", avgScore);
+        stats.put("avgOpenIslands", avgOpenIslands);
+        stats.put("topUser", topUser.map(UserEntity::getUsername).orElse("אין"));
+
+        return stats;
+    }
+
 }

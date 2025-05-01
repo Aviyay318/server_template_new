@@ -20,7 +20,7 @@ import java.util.List;
 public class GeneralController {
     private HashMap<String,UserEntity> unverifiedUsers = new HashMap<>();
     private List<String> loggedUsers = new ArrayList<>();
-
+     public static final String ADMIN = "admin";
     @Autowired
     private Persist persist;
 
@@ -170,7 +170,7 @@ public class GeneralController {
             this.persist.save(user); // or update
             boolean emailSent = ApiEmailProcessor.sendEmail(email, "קוד אימות להתחברות", "הקוד שלך הוא: " + otp);
             System.out.println("OTP sent: " + emailSent);
-        }else if (user != null&&user.getUsername().equals("admin")) {
+        }else if (user != null&&user.getUsername().equals(ADMIN)) {
             success = true;
             String otp = "123456";
             user.setOtp(otp);
@@ -180,6 +180,19 @@ public class GeneralController {
         }
 
         return new LoginResponse(success, token, isAdmin);
+    }
+
+    @RequestMapping("/get-logged-users")
+    public List<UserEntity> getLoggedUsers(String token){
+        List<UserEntity> loggedUsers = new ArrayList<>();
+        UserEntity user = this.persist.getUserByToken(token);
+        if (user.getUsername().equals(ADMIN)){
+            for (int i = 0; i < this.loggedUsers.size(); i++) {
+               loggedUsers.add(this.persist.getUserByToken(this.loggedUsers.get(i)));
+            }
+        }
+        System.out.println(loggedUsers.size());
+        return loggedUsers;
     }
 
     @RequestMapping("/logout")
