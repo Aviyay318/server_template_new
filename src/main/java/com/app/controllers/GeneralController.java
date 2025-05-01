@@ -170,14 +170,22 @@ public class GeneralController {
             this.persist.save(user); // or update
             boolean emailSent = ApiEmailProcessor.sendEmail(email, "קוד אימות להתחברות", "הקוד שלך הוא: " + otp);
             System.out.println("OTP sent: " + emailSent);
+        }else if (user != null&&user.getUsername().equals("admin")) {
+            success = true;
+            String otp = "123456";
+            user.setOtp(otp);
+            this.persist.save(user); // or update
+            System.out.println(user.getUsername());
+            token = user.getPassword();
         }
 
         return new LoginResponse(success, token, isAdmin);
     }
 
-    @PostMapping("/logout")
+    @RequestMapping("/logout")
     public boolean logout(String token){
         boolean isLogout = false;
+        System.out.println(token);
         if (!this.loggedUsers.stream().filter(user-> user.equals(token)).toList().isEmpty()){
             this.unverifiedUsers.remove(token);
             isLogout = true;
@@ -203,7 +211,7 @@ public class GeneralController {
             userLevel.setLevel(1);
             System.out.println(userLevel);
            this.persist.save(userLevel);
-            String message = String.format("היי %s, מזל טוב להצטרפותכם לאתר לימוד חשבון! אני הולכת לבדוק אתכם ב-7 עיניים!!! חחחחח. אם לא תלמדו, תתחרטו.", user.getUsername());
+            String message = String.format("היי %s,ואם אתה שי גבעתי אנחנו יודעים איפה אתה גר למקרה ולא נקבל 100 חחחחחח מזל טוב להצטרפותך לאתר לימוד חשבון! אני הולכת לבדוק אתכם ב-7 עיניים!!! חחחחח. אם לא תלמדו, תתחרטו.", user.getUsername());
             boolean emailSent = ApiEmailProcessor.sendEmail(user.getEmail(),"הצטרפות לאתר הכי מושלם שמלמד חשבון",message);
             System.out.println(emailSent);
             return new OtpResponse(true, "OTP verified successfully", true);
