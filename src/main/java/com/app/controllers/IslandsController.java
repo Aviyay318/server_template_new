@@ -53,6 +53,7 @@ public class IslandsController {
 
     @RequestMapping("/check-exercise")
     public CheckExerciseResponse checkExercise(String token , int exerciseId, String answer, int solution_time, boolean usedClue , int questionType){
+        System.out.println("sss: " + solution_time);
         UserEntity user = this.persist.getUserByToken(token);
         String islandOpen = null;
         System.out.println("s: " + solution_time);
@@ -68,7 +69,7 @@ public class IslandsController {
                if (!usedClue){
                    if (questionType == Constants.LITERAL_PROBLEMS){
                        score = 5;
-                   } else if (questionType ==Constants.COMPLETE_TABLE&&solution_time<2) {
+                   } else if (questionType ==Constants.COMPLETE_TABLE&&solution_time<120) {
                        score = 7;
                    }else {
                        score++;

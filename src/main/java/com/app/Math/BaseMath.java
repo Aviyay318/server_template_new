@@ -7,6 +7,7 @@ public class BaseMath {
 
     protected int id;
     protected int maxRange;
+    protected int minRange;
     protected String operator;
     protected Map<String, Object> values = new HashMap<>();
     public static final double SUCCESS_BOOST_THRESHOLD = 0.80;
@@ -25,7 +26,7 @@ public class BaseMath {
     public Map<String, Object> getExercise() {
 
 
-        int num1 = this.random.nextInt(Math.max(1, maxRange));
+        int num1 = operator.equals("+")||operator.equals("-")?this.random.nextInt(Math.max(1, maxRange)):this.minRange;
         int num2 = this.operator.equals("-")
                 ? this.random.nextInt(Math.max(1, num1))
                 : this.random.nextInt(Math.max(1, maxRange));

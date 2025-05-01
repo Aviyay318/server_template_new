@@ -1,5 +1,7 @@
 package com.app.Math;
 
+import java.util.Random;
+
 public class multiplicationTableService extends BaseMath{
 
 
@@ -9,8 +11,8 @@ public class multiplicationTableService extends BaseMath{
 
     public void shortAddAndSubtract(int level, double success, int questionType) {
         System.out.println(level);
-        this.maxRange = level*2;
-        this.maxRange = Math.min(this.maxRange, MAXIMUM_MAX_RANGE);
+        this.maxRange = MAXIMUM_MAX_RANGE;
+        this.minRange = level<11?level:new Random().nextInt(1,MAXIMUM_MAX_RANGE);
 
         this.operator =  "*" ;
     }

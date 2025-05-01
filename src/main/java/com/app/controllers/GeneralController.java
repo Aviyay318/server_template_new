@@ -255,4 +255,10 @@ public class GeneralController {
         }
     }
 
+    @RequestMapping("/get-user")
+    public UserEntity getUser(String token){
+        UserEntity user = this.persist.getUserByToken(token);
+       return user;
+    }
+
 }
