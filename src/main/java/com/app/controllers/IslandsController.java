@@ -1,7 +1,6 @@
 package com.app.controllers;
 
-import com.app.MathIslands.AddAndSubIslandService;
-import com.app.MathIslands.MultiplicationIslandService;
+import com.app.MathIslands.*;
 import com.app.entities.ExerciseHistoryEntity;
 import com.app.entities.IslandsEntity;
 import com.app.entities.LevelsEntity;
@@ -33,6 +32,11 @@ public class IslandsController {
     @Autowired
     private MultiplicationIslandService multiplicationIslandService;
 
+    @Autowired
+    private DivisionIslandService divisionIslandService;
+    @Autowired
+    private FloatingPointIslandService floatingPointIslandService;
+
     @RequestMapping("/Addition-and-subtraction")
     public Map<String, Object> addAndSub(@RequestParam String token, @RequestParam int questionType) {
         UserEntity user = this.persist.getUserByToken(token);
@@ -49,6 +53,29 @@ public class IslandsController {
         LevelsEntity islandLevel = this.persist.getLevelByUserIdAndIslandId(user,island);
         System.out.println(islandLevel);
         return multiplicationIslandService.generateExercise(user,island, islandLevel, questionType);
+    }
+@RequestMapping("/division")
+    public Map<String, Object> divisionIsland(@RequestParam String token, @RequestParam int questionType) {
+        UserEntity user = persist.getUserByToken(token);
+        IslandsEntity island = persist.loadObject(IslandsEntity.class, 999); // תעדכן לפי ID אמיתי
+        LevelsEntity level = persist.getLevelsByUserId(user).stream()
+                .filter(l -> l.getIsland().getId() == island.getId())
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Level not found for user in division island"));
+
+    return divisionIslandService.generateExercise(user, island, level, questionType);
+    }
+
+    @RequestMapping("/floating-point")
+    public Map<String, Object> floatingPointIsland(@RequestParam String token, @RequestParam int questionType) {
+        UserEntity user = persist.getUserByToken(token);
+        IslandsEntity island = persist.loadObject(IslandsEntity.class, 123); // ID של האי עם תרגילי עשרוניים
+        LevelsEntity level = persist.getLevelsByUserId(user).stream()
+                .filter(l -> l.getIsland().getId() == island.getId())
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Level not found for user in floating-point island"));
+
+        return floatingPointIslandService.generateExercise(user, island, level, questionType);
     }
 
     @RequestMapping("/check-exercise")

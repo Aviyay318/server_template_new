@@ -19,6 +19,14 @@ public class BaseMath {
         generateId();
     }
 
+    public int getMinRange() {
+        return minRange;
+    }
+
+    public void setMinRange(int minRange) {
+        this.minRange = minRange;
+    }
+
     protected void generateId() {
         this.id = idCounter++;
     }
