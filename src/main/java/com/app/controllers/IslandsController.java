@@ -145,10 +145,12 @@ public class IslandsController {
            LevelsEntity islandLevel = this.persist.getLevelByUserIdAndIslandId(user,island);
           // System.out.println(islandLevel + "kkkkkkk");
 //           List<ExerciseHistoryEntity> exerciseHistoryList = this.persist.getExercisesByUserIdAndLevel(user,islandLevel.getLevel());
-           List<ExerciseHistoryEntity> exerciseHistoryList = this.persist.getExercisesByUserIdAndIsland(user,island,islandLevel.getLevel());
+           List<ExerciseHistoryEntity> exerciseHistoryList = this.persist.getExercisesByUserIdAndIsland(user,island);
            System.out.println(exerciseHistoryList.size()+"ABCD");
          level = LevelUp.getLevelOfUser(exerciseHistoryList);
            System.out.println("level: " + level);
+          // level+=islandLevel.getLevel();
+           System.out.println(islandLevel.getLevel()+" @@@@@@@@@@@@@@@@ ");
            islandLevel.setLevel(level);
            this.persist.save(islandLevel);
            islandOpen =  openIslands(score,user);
