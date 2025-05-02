@@ -117,7 +117,7 @@ public class Persist {
     }
 
 
-    public List<ExerciseHistoryEntity> getExercisesByUserIdAndIsland(UserEntity userId,IslandsEntity island, LevelsEntity level) {
+    public List<ExerciseHistoryEntity> getExercisesByUserIdAndIsland(UserEntity userId,IslandsEntity island, int level) {
         return this.sessionFactory.getCurrentSession()
                 .createQuery("FROM ExerciseHistoryEntity WHERE userId = :userId AND island = :island AND level = :level", ExerciseHistoryEntity.class)
                 .setParameter("userId", userId)

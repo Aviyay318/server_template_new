@@ -58,8 +58,6 @@ public class IslandsController {
     }
 @RequestMapping("/division")
     public Map<String, Object> divisionIsland(@RequestParam String token, @RequestParam int questionType) {
-    System.out.println(token+"toDDD");
-    System.out.println(questionType+"qaDDD");
         UserEntity user = persist.getUserByToken(token);
         IslandsEntity island = persist.loadObject(IslandsEntity.class, Constants.DIVISION_ISLAND);
         LevelsEntity level = persist.getLevelsByUserId(user).stream()
@@ -144,10 +142,10 @@ public class IslandsController {
            IslandsEntity island = this.persist.loadObject(IslandsEntity.class,exerciseHistory.getIslands().getId());
            System.out.println(island.getName());
            LevelsEntity islandLevel = this.persist.getLevelByUserIdAndIslandId(user,island);
-           System.out.println(islandLevel + "kkkkkkk");
+          // System.out.println(islandLevel + "kkkkkkk");
 //           List<ExerciseHistoryEntity> exerciseHistoryList = this.persist.getExercisesByUserIdAndLevel(user,islandLevel.getLevel());
-           List<ExerciseHistoryEntity> exerciseHistoryList = this.persist.getExercisesByUserIdAndIsland(user,island,islandLevel);
-           System.out.println(exerciseHistoryList+"ABCD");
+           List<ExerciseHistoryEntity> exerciseHistoryList = this.persist.getExercisesByUserIdAndIsland(user,island,islandLevel.getLevel());
+           System.out.println(exerciseHistoryList.size()+"ABCD");
            int level = LevelUp.getLevelOfUser(exerciseHistoryList);
            System.out.println("level: " + level);
            islandLevel.setLevel(level);
