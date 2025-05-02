@@ -11,7 +11,7 @@ public class AddSubtractService extends BaseMath {
         System.out.println("Level: " + level);
         System.out.println("Success Rate: " + success);
 
-        this.maxRange =level * 100;
+        this.maxRange =level * 10;
 
         if (level % 2 != 0) {
             if (success >= SUCCESS_BOOST_THRESHOLD) {
@@ -31,7 +31,7 @@ public class AddSubtractService extends BaseMath {
         System.out.println("Level: " + level);
         System.out.println("Success Rate: " + success);
 
-        this.maxRange = Math.max(level * 100, 100); // התחלה ב-100 כדי להרגיש "ארוך"
+        this.maxRange = level * 100; // התחלה ב-100 כדי להרגיש "ארוך"
 
         // חיזוק/החלשה לפי הצלחה
         if (success >= SUCCESS_BOOST_THRESHOLD) {

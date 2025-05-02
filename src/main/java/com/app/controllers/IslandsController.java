@@ -104,6 +104,7 @@ public class IslandsController {
     @RequestMapping("/check-exercise")
     public CheckExerciseResponse checkExercise(String token , int exerciseId, String answer, int solution_time, boolean usedClue , int questionType){
         System.out.println("sss: " + solution_time);
+        int level = 1;
         UserEntity user = this.persist.getUserByToken(token);
         String islandOpen = null;
         System.out.println("s: " + solution_time);
@@ -146,13 +147,13 @@ public class IslandsController {
 //           List<ExerciseHistoryEntity> exerciseHistoryList = this.persist.getExercisesByUserIdAndLevel(user,islandLevel.getLevel());
            List<ExerciseHistoryEntity> exerciseHistoryList = this.persist.getExercisesByUserIdAndIsland(user,island,islandLevel.getLevel());
            System.out.println(exerciseHistoryList.size()+"ABCD");
-           int level = LevelUp.getLevelOfUser(exerciseHistoryList);
+         level = LevelUp.getLevelOfUser(exerciseHistoryList);
            System.out.println("level: " + level);
            islandLevel.setLevel(level);
            this.persist.save(islandLevel);
            islandOpen =  openIslands(score,user);
        }catch (Exception e){}
-        return new CheckExerciseResponse(success,message,user,islandOpen);
+        return new CheckExerciseResponse(success,message,user,islandOpen,level);
     }
 
     private String openIslands(int score, UserEntity user) {
@@ -207,6 +208,15 @@ public class IslandsController {
      @RequestMapping("/islands")
      public List<IslandsEntity> getIslands(){
         return this.persist.loadList(IslandsEntity.class);
+     }
+     @RequestMapping("/get-level-of-island")
+     public int getLevelOfIsland(
+             @RequestParam String token,
+             @RequestParam int islandId){
+        UserEntity user = this.persist.getUserByToken(token);
+        IslandsEntity island = this.persist.loadObject(IslandsEntity.class,islandId);
+        LevelsEntity level = this.persist.getLevelByUserIdAndIslandId(user,island);
+        return level.getLevel();
      }
     @PostConstruct
     public void init() {
