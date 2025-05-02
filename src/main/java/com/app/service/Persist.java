@@ -117,11 +117,12 @@ public class Persist {
     }
 
 
-    public List<ExerciseHistoryEntity> getExercisesByUserIdAndIsland(UserEntity userId, LevelsEntity island) {
+    public List<ExerciseHistoryEntity> getExercisesByUserIdAndIsland(UserEntity userId,IslandsEntity island, LevelsEntity level) {
         return this.sessionFactory.getCurrentSession()
-                .createQuery("FROM ExerciseHistoryEntity WHERE userId = :userId AND island = :island", ExerciseHistoryEntity.class)
+                .createQuery("FROM ExerciseHistoryEntity WHERE userId = :userId AND island = :island AND level = :level", ExerciseHistoryEntity.class)
                 .setParameter("userId", userId)
                 .setParameter("island", island)
+                .setParameter("level", level)
                 .list();
     }
 }

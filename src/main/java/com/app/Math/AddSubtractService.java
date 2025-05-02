@@ -11,7 +11,7 @@ public class AddSubtractService extends BaseMath {
         System.out.println("Level: " + level);
         System.out.println("Success Rate: " + success);
 
-        this.maxRange = Math.max(level * 10, MINIMUM_MAX_RANGE); // הבטחה לערך מינימלי
+        this.maxRange =level * 100;
 
         if (level % 2 != 0) {
             if (success >= SUCCESS_BOOST_THRESHOLD) {
@@ -27,6 +27,23 @@ public class AddSubtractService extends BaseMath {
     }
 
 
+    public void longAddAndSubtract(int level, double success, int questionType) {
+        System.out.println("Level: " + level);
+        System.out.println("Success Rate: " + success);
 
+        this.maxRange = Math.max(level * 100, 100); // התחלה ב-100 כדי להרגיש "ארוך"
+
+        // חיזוק/החלשה לפי הצלחה
+        if (success >= SUCCESS_BOOST_THRESHOLD) {
+            this.maxRange += (int)(this.maxRange * success * 0.5); // העלאה מתונה
+        } else if (success < FAILURE_REDUCE_THRESHOLD) {
+            this.maxRange -= (int)(this.maxRange * success * 0.5); // הקטנה קלה
+        }
+
+        this.maxRange = Math.min(this.maxRange, 1000); // תקרה כדי למנוע עומס
+
+        // לסירוגין פלוס או מינוס, בהתאם לרמה
+        this.operator = (level % 2 == 0) ? "-" : "+";
+    }
 
 }

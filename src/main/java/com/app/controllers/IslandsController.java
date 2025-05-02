@@ -36,6 +36,8 @@ public class IslandsController {
     private DivisionIslandService divisionIslandService;
     @Autowired
     private FloatingPointIslandService floatingPointIslandService;
+    @Autowired
+    private LongAddAndSubIslandService longAddAndSubIslandService;
 
     @RequestMapping("/Addition-and-subtraction")
     public Map<String, Object> addAndSub(@RequestParam String token, @RequestParam int questionType) {
@@ -80,12 +82,26 @@ public class IslandsController {
         return floatingPointIslandService.generateExercise(user, island, level, questionType);
     }
 
+    @RequestMapping("/long-addition-and-subtraction")
+    public Map<String, Object> longAdditionAndSubtractionIsland(@RequestParam String token, @RequestParam int questionType) {
+        UserEntity user = this.persist.getUserByToken(token);
+        IslandsEntity island = this.persist.loadObject(IslandsEntity.class, Constants.ISLAND_LONG_ADDITION_AND_SUBTRACTION);
+        LevelsEntity islandLevel = this.persist.getLevelByUserIdAndIslandId(user, island);
+        return longAddAndSubIslandService.generateExercise(user, island, islandLevel, questionType);
+    }
+    @RequestMapping("/long-multiplication-and-division")
+    public Map<String, Object> longMultiplicationAndDivisionIsland(@RequestParam String token, @RequestParam int questionType) {
+        return null;
+    }
+    @RequestMapping("/mixed-challenge-island")
+    public Map<String, Object> mixedChallengeIsland(@RequestParam String token, @RequestParam int questionType) {
+        return null;
+    }
+    @RequestMapping("/equations-island")
+    public Map<String, Object> equationsIsland(@RequestParam String token, @RequestParam int questionType) {
+        return null;
+    }
 
-
-    public static final int ISLAND_LONG_ADDITION_AND_SUBTRACTION = 5;
-    public static final int ISLAND_LONG_MULTIPLICATION_AND_DIVISION = 6;
-    public static final int ISLAND_MIXED_CHALLENGE = 7; // The Nightmare Island
-    public static final int ISLAND_EQUATIONS = 8;
 
     @RequestMapping("/check-exercise")
     public CheckExerciseResponse checkExercise(String token , int exerciseId, String answer, int solution_time, boolean usedClue , int questionType){
@@ -124,11 +140,14 @@ public class IslandsController {
                user.setScore(score);
                this.persist.save(user);
            }
+           System.out.println(exerciseHistory.getIslands().getId()+" island id: ");
            IslandsEntity island = this.persist.loadObject(IslandsEntity.class,exerciseHistory.getIslands().getId());
            System.out.println(island.getName());
            LevelsEntity islandLevel = this.persist.getLevelByUserIdAndIslandId(user,island);
+           System.out.println(islandLevel + "kkkkkkk");
 //           List<ExerciseHistoryEntity> exerciseHistoryList = this.persist.getExercisesByUserIdAndLevel(user,islandLevel.getLevel());
-           List<ExerciseHistoryEntity> exerciseHistoryList = this.persist.getExercisesByUserIdAndIsland(user,islandLevel);
+           List<ExerciseHistoryEntity> exerciseHistoryList = this.persist.getExercisesByUserIdAndIsland(user,island,islandLevel);
+           System.out.println(exerciseHistoryList+"ABCD");
            int level = LevelUp.getLevelOfUser(exerciseHistoryList);
            System.out.println("level: " + level);
            islandLevel.setLevel(level);
