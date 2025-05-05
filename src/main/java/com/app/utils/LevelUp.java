@@ -6,27 +6,32 @@ import java.util.List;
 
 public class LevelUp {
 
-    // קבועים לקונפיגורציה נוחה
     public static final int MIN_LEVEL = 1;
+    public static final int FAST_COMPLETION_TIME = 30;
 
-    public static final int FAST_COMPLETION_TIME = 30; // שניות
-
-    // דרישות לקידום מואץ
+    // קידום מואץ
     public static final double EXCELLENT_SUCCESS_RATE = 0.9;
     public static final int EXCELLENT_STREAK = 5;
     public static final int EXCELLENT_FAST_ANSWERS = 3;
     public static final int FAST_PROMOTION_DIVIDER = 5;
 
-    // דרישות לקידום רגיל
+    // קידום רגיל
     public static final double AVERAGE_SUCCESS_RATE = 0.5;
     public static final int REGULAR_PROMOTION_DIVIDER = 5;
 
-    // דרישות לירידה ברמה
+    // ירידה ברמה
     public static final double POOR_SUCCESS_RATE = 0.3;
     public static final int MAX_WRONG_STREAK_FOR_DEMOTION = 5;
 
-    public static int getLevelOfUser(List<ExerciseHistoryEntity> history) {
-        if (history == null || history.isEmpty()) return MIN_LEVEL;
+    // חסינות מירידה לאחר קידום
+    public static final int IMMUNITY_AFTER_PROMOTION = 10;
+
+    /**
+     * מחשבת את רמת המשתמש לפי היסטוריית התרגולים, כולל חסינות מירידה,
+     * קידום מואץ, קידום רגיל וירידה חכמה
+     */
+    public static int calculateLevelFromHistory(List<ExerciseHistoryEntity> history, int currentLevel) {
+        if (history == null || history.isEmpty()) return currentLevel;
 
         int totalCorrect = 0;
         int total = history.size();
@@ -55,27 +60,40 @@ public class LevelUp {
         bestStreak = Math.max(bestStreak, streak);
         double successRate = (double) totalCorrect / total;
 
-        // לוגיקה חכמה לקידום
+        // אם יש פחות מ־10 תרגולים – חסינות מירידה
+        if (history.size() < IMMUNITY_AFTER_PROMOTION) {
+            return currentLevel;
+        }
+
+        // קידום מואץ
         if (successRate >= EXCELLENT_SUCCESS_RATE &&
                 bestStreak >= EXCELLENT_STREAK &&
                 fastCorrect >= EXCELLENT_FAST_ANSWERS) {
 
-            return totalCorrect / FAST_PROMOTION_DIVIDER + MIN_LEVEL;
+            int level = totalCorrect / FAST_PROMOTION_DIVIDER + MIN_LEVEL;
+            return Math.max(level, currentLevel);
+        }
 
-        } else if (successRate >= AVERAGE_SUCCESS_RATE) {
+        // קידום רגיל
+        if (successRate >= AVERAGE_SUCCESS_RATE) {
+            int level = totalCorrect / REGULAR_PROMOTION_DIVIDER + MIN_LEVEL;
+            return Math.max(level, currentLevel);
+        }
 
-            return totalCorrect / REGULAR_PROMOTION_DIVIDER + MIN_LEVEL;
-
-        } else if (successRate < POOR_SUCCESS_RATE &&
+        // ירידה חכמה
+        if (successRate < POOR_SUCCESS_RATE &&
                 maxWrongStreak >= MAX_WRONG_STREAK_FOR_DEMOTION) {
 
-            return Math.max(MIN_LEVEL, (totalCorrect / REGULAR_PROMOTION_DIVIDER));
-
-        } else {
-            return totalCorrect / REGULAR_PROMOTION_DIVIDER + MIN_LEVEL;
+            return Math.max(MIN_LEVEL, currentLevel - 1); // יורד שלב אחד בלבד
         }
+
+        // אחרת: נשאר באותה רמה
+        return currentLevel;
     }
 
+    /**
+     * מחזיר אחוזי הצלחה מהיסטוריה פשוטה
+     */
     public static double getSuccessRate(List<ExerciseHistoryEntity> history) {
         if (history == null || history.isEmpty()) return 0.0;
 
@@ -88,42 +106,6 @@ public class LevelUp {
             }
         }
 
-        return (double) totalCorrect / total; // בין 0.0 ל-1.0
+        return (double) totalCorrect / total;
     }
-    public static double getDynamicSuccessRate(List<ExerciseHistoryEntity> history) {
-        if (history == null || history.isEmpty()) return 0.0;
-
-        int totalCorrect = 0;
-        int total = history.size();
-        int streak = 0;
-        int streakBonusCount = 0;
-        int fastCorrect = 0;
-
-        for (ExerciseHistoryEntity e : history) {
-            if (e.isCorrectAnswer()) {
-                totalCorrect++;
-                streak++;
-                if (e.getSolutionTime() < FAST_COMPLETION_TIME) {
-                    fastCorrect++;
-                }
-            } else {
-                if (streak >= 2) { // נחשב סטרייק אם יש לפחות 2 רצופים
-                    streakBonusCount++;
-                }
-                streak = 0;
-            }
-        }
-
-        // אם הסיום היה בסטרייק, קח גם אותו
-        if (streak >= 2) {
-            streakBonusCount++;
-        }
-
-        double baseRate = (double) totalCorrect / total;
-        double bonus = streakBonusCount * 0.05 + fastCorrect * 0.05;
-        double totalScore = baseRate + bonus;
-
-        return Math.min(1.0, totalScore); // לא לעבור את 100%
-    }
-
 }

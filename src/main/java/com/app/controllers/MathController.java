@@ -48,11 +48,7 @@ public class MathController {
         return mathExercise.toJson();
     }
 
-    @RequestMapping("/get-level")
-    public int getLevel(String token){
-        UserEntity user = this.persist.getUserByToken(token);
-        return LevelUp.getLevelOfUser(this.persist.getExercisesByUserId(user));
-    }
+
     @RequestMapping("/check-exercise")
     public boolean checkExercise(String token, int id,String answer){
         ExerciseHistoryEntity exerciseHistory = this.persist.loadObject(ExerciseHistoryEntity.class,id);
@@ -64,22 +60,7 @@ public class MathController {
         return false;
     }
 
-    @RequestMapping("/get-literal-problem")
-    public Map<String, Object> getLiteralProblem(@RequestParam String token) {
-        // טוען נתונים מהרשימות
 
-        List<ObjectsEntity> objects = this.persist.loadList(ObjectsEntity.class);
-        List<ChildrenNameEntity> childrenList = this.persist.loadList(ChildrenNameEntity.class);
-        UserEntity user = this.persist.getUserByToken(token);
-        int level = LevelUp.getLevelOfUser(this.persist.getExercisesByUserId(user));
-        Map<String, Object> literalProblem = QuestionGenerator.literalProblem(objects,childrenList,level);
-        QuestionTypeEntity questionType = this.persist.loadObject(QuestionTypeEntity.class,2);
-        ExerciseHistoryEntity exerciseHistory = new ExerciseHistoryEntity(user,1,(String) literalProblem.get("question"),false, String.valueOf(literalProblem.get("answer")),questionType);
-        this.persist.save(exerciseHistory);
-        literalProblem.put("id",exerciseHistory.getId());
-        return literalProblem;
-
-    }
 
     @RequestMapping("/check-literal-problem")
     public boolean checkLiteralProblem(String token, int id){

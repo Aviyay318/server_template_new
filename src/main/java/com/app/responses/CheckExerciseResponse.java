@@ -1,10 +1,11 @@
 package com.app.responses;
 
+import com.app.entities.LevelsEntity;
 import com.app.entities.UserEntity;
 
 public class CheckExerciseResponse extends BasicResponse{
     private UserEntity user;
-    private int level;
+    private LevelsEntity level;
     private String islandOpen;
 
     public CheckExerciseResponse(boolean success) {
@@ -19,11 +20,11 @@ public class CheckExerciseResponse extends BasicResponse{
         this.user = user;
     }
 
-    public int getLevel() {
+    public LevelsEntity getLevel() {
         return level;
     }
 
-    public void setLevel(int level) {
+    public void setLevel(LevelsEntity level) {
         this.level = level;
     }
 
@@ -35,7 +36,7 @@ public class CheckExerciseResponse extends BasicResponse{
         this.islandOpen = islandOpen;
     }
 
-    public CheckExerciseResponse(boolean success, String message, UserEntity user,String islandOpen,int level) {
+    public CheckExerciseResponse(boolean success, String message, UserEntity user,String islandOpen,LevelsEntity level) {
         super(success, message);
         this.user = user;
         this.islandOpen = islandOpen;

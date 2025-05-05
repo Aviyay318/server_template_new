@@ -4,7 +4,15 @@ public class LevelsEntity extends BaseEntity{
     private UserEntity user;
     private IslandsEntity island;
     private int level;
+    private int highestLevel;
 
+    public int getHighestLevel() {
+        return highestLevel;
+    }
+
+    public void setHighestLevel(int highestLevel) {
+        this.highestLevel = highestLevel;
+    }
     public LevelsEntity() {
     }
 
@@ -12,6 +20,7 @@ public class LevelsEntity extends BaseEntity{
         this.user = user;
         this.island = island;
         this.level = level;
+        this.highestLevel = highestLevel;
     }
 
     public UserEntity getUser() {

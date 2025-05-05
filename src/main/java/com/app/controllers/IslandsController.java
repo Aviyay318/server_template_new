@@ -102,61 +102,79 @@ public class IslandsController {
 
 
     @RequestMapping("/check-exercise")
-    public CheckExerciseResponse checkExercise(String token , int exerciseId, String answer, int solution_time, boolean usedClue , int questionType){
-        System.out.println("sss: " + solution_time);
+    public CheckExerciseResponse checkExercise(
+            @RequestParam String token,
+            @RequestParam int exerciseId,
+            @RequestParam String answer,
+            @RequestParam int solution_time,
+            @RequestParam boolean usedClue,
+            @RequestParam int questionType) {
+
+        boolean success = false;
+        String message = "wrong question id";
+        int score = 1;
         int level = 1;
-        UserEntity user = this.persist.getUserByToken(token);
         String islandOpen = null;
-        System.out.println("s: " + solution_time);
-       boolean success = false;
-       String message = "wrong question id";
-       int score = 1;
-       try{
-           ExerciseHistoryEntity exerciseHistory = this.persist.getExerciseByExerciseId(exerciseId);
-           if (exerciseHistory.getAnswer().equals(answer)) {
-               exerciseHistory.setCorrectAnswer(true);
-               exerciseHistory.setSolutionTime(solution_time);
-               this.persist.save(exerciseHistory);
-               if (!usedClue){
-                   if (questionType == Constants.LITERAL_PROBLEMS){
-                       score = 5;
-                   } else if (questionType ==Constants.COMPLETE_TABLE&&solution_time<120) {
-                       score = 7;
-                   }else {
-                       score++;
-                   }
-               }else {
-                   score = 2;
-               }
-               success = true;
-               message = "great gob";
-           }else {
-               score-=2;
-               message = "wrong answer";
-           }
-           if (user!=null){
-               score +=user.getScore();
-               user.setScore(score);
-               this.persist.save(user);
-           }
-           System.out.println(exerciseHistory.getIslands().getId()+" island id: ");
-           IslandsEntity island = this.persist.loadObject(IslandsEntity.class,exerciseHistory.getIslands().getId());
-           System.out.println(island.getName());
-           LevelsEntity islandLevel = this.persist.getLevelByUserIdAndIslandId(user,island);
-          // System.out.println(islandLevel + "kkkkkkk");
-//           List<ExerciseHistoryEntity> exerciseHistoryList = this.persist.getExercisesByUserIdAndLevel(user,islandLevel.getLevel());
-           List<ExerciseHistoryEntity> exerciseHistoryList = this.persist.getExercisesByUserIdAndIsland(user,island);
-           System.out.println(exerciseHistoryList.size()+"ABCD");
-         level = LevelUp.getLevelOfUser(exerciseHistoryList);
-           System.out.println("level: " + level);
-          // level+=islandLevel.getLevel();
-           System.out.println(islandLevel.getLevel()+" @@@@@@@@@@@@@@@@ ");
-           islandLevel.setLevel(level);
-           this.persist.save(islandLevel);
-           islandOpen =  openIslands(score,user);
-       }catch (Exception e){}
-        return new CheckExerciseResponse(success,message,user,islandOpen,level);
+
+        UserEntity user = null;
+        LevelsEntity islandLevel = null;
+        try {
+            user = this.persist.getUserByToken(token);
+            ExerciseHistoryEntity exerciseHistory = this.persist.getExerciseByExerciseId(exerciseId);
+
+            if (exerciseHistory == null || user == null) {
+                return new CheckExerciseResponse(false, "Invalid token or exercise", null, null, islandLevel);
+            }
+            if (exerciseHistory.getAnswer().equals(answer)) {
+                exerciseHistory.setCorrectAnswer(true);
+                exerciseHistory.setSolutionTime(solution_time);
+                this.persist.save(exerciseHistory);
+
+                if (!usedClue) {
+                    if (questionType == Constants.LITERAL_PROBLEMS) {
+                        score = 5;
+                    } else if (questionType == Constants.COMPLETE_TABLE && solution_time < 120) {
+                        score = 7;
+                    } else {
+                        score++;
+                    }
+                } else {
+                    score = 2;
+                }
+
+                success = true;
+                message = "great job";
+            } else {
+                score -= 2;
+                message = "wrong answer";
+            }
+            score += user.getScore();
+            user.setScore(score);
+            this.persist.save(user);
+
+            IslandsEntity island = this.persist.loadObject(IslandsEntity.class, exerciseHistory.getIslands().getId());
+            islandLevel = this.persist.getLevelByUserIdAndIslandId(user, island);
+
+            List<ExerciseHistoryEntity> historyList = this.persist.getExercisesByUserIdAndIsland(user, island);
+
+            int currentLevel = islandLevel.getLevel();
+            level = LevelUp.calculateLevelFromHistory(historyList, currentLevel);
+
+            islandLevel.setLevel(level);
+            if (level > islandLevel.getHighestLevel()) {
+                islandLevel.setHighestLevel(level);
+            }
+            this.persist.save(islandLevel);
+
+            islandOpen = openIslands(score, user);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return new CheckExerciseResponse(success, message, user, islandOpen, islandLevel);
     }
+
 
     private String openIslands(int score, UserEntity user) {
         String islandOpen = null;
@@ -212,13 +230,13 @@ public class IslandsController {
         return this.persist.loadList(IslandsEntity.class);
      }
      @RequestMapping("/get-level-of-island")
-     public int getLevelOfIsland(
+     public LevelsEntity getLevelOfIsland(
              @RequestParam String token,
              @RequestParam int islandId){
         UserEntity user = this.persist.getUserByToken(token);
         IslandsEntity island = this.persist.loadObject(IslandsEntity.class,islandId);
         LevelsEntity level = this.persist.getLevelByUserIdAndIslandId(user,island);
-        return level.getLevel();
+        return level;
      }
     @PostConstruct
     public void init() {
