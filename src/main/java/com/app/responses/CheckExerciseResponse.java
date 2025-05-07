@@ -7,7 +7,8 @@ public class CheckExerciseResponse extends BasicResponse{
     private UserEntity user;
     private LevelsEntity level;
     private String islandOpen;
-
+    private double progress ;
+    private String levelUp;
     public CheckExerciseResponse(boolean success) {
         super(success);
     }
@@ -36,10 +37,31 @@ public class CheckExerciseResponse extends BasicResponse{
         this.islandOpen = islandOpen;
     }
 
-    public CheckExerciseResponse(boolean success, String message, UserEntity user,String islandOpen,LevelsEntity level) {
+    public double getProgress() {
+        return progress;
+    }
+
+    public void setProgress(double progress) {
+        this.progress = progress;
+    }
+
+    public String getLevelUp() {
+        return levelUp;
+    }
+
+    public void setLevelUp(String levelUp) {
+        this.levelUp = levelUp;
+    }
+
+    public CheckExerciseResponse(boolean success, String message, UserEntity user, String islandOpen, LevelsEntity level, double progress,String levelUp) {
         super(success, message);
         this.user = user;
         this.islandOpen = islandOpen;
         this.level = level;
+        this.progress = progress;
+        this.levelUp = levelUp;
+
     }
+
+
 }

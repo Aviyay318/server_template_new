@@ -19,6 +19,8 @@ import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.app.utils.LevelUp.calculateLevelProgress;
+
 @RestController
 @RequestMapping("/api/islands")
 public class IslandsController {
@@ -109,21 +111,21 @@ public class IslandsController {
             @RequestParam int solution_time,
             @RequestParam boolean usedClue,
             @RequestParam int questionType) {
-
+        System.out.println("!!!!!!!!!!!11");
         boolean success = false;
         String message = "wrong question id";
         int score = 1;
         int level = 1;
         String islandOpen = null;
-
+        double progress = 0;
         UserEntity user = null;
         LevelsEntity islandLevel = null;
+        String levelUp = null;
         try {
             user = this.persist.getUserByToken(token);
             ExerciseHistoryEntity exerciseHistory = this.persist.getExerciseByExerciseId(exerciseId);
-
             if (exerciseHistory == null || user == null) {
-                return new CheckExerciseResponse(false, "Invalid token or exercise", null, null, islandLevel);
+                return new CheckExerciseResponse(false, "Invalid token or exercise", null, null, islandLevel,0.0,null);
             }
             if (exerciseHistory.getAnswer().equals(answer)) {
                 exerciseHistory.setCorrectAnswer(true);
@@ -156,10 +158,18 @@ public class IslandsController {
             IslandsEntity island = this.persist.loadObject(IslandsEntity.class, exerciseHistory.getIslands().getId());
             islandLevel = this.persist.getLevelByUserIdAndIslandId(user, island);
 
-            List<ExerciseHistoryEntity> historyList = this.persist.getExercisesByUserIdAndIsland(user, island);
+            List<ExerciseHistoryEntity> history = this.persist.getExercisesByUserIdAndIsland(user, island);
 
             int currentLevel = islandLevel.getLevel();
-            level = LevelUp.calculateLevelFromHistory(historyList, currentLevel);
+            List<ExerciseHistoryEntity> currentLevelHistory = history.stream()
+                    .filter(e -> e.getLevel() == currentLevel)
+                    .collect(Collectors.toList());
+
+            Map<String, Object> levelDetails = calculateLevelProgress(currentLevelHistory, currentLevel);
+
+           level = (int) levelDetails.get("calculatedLevel");
+            progress = (double) levelDetails.get("progressToNextLevel");
+            levelUp = (String) levelDetails.get("statusMessage");
 
             islandLevel.setLevel(level);
             if (level > islandLevel.getHighestLevel()) {
@@ -172,8 +182,8 @@ public class IslandsController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        return new CheckExerciseResponse(success, message, user, islandOpen, islandLevel);
+        System.out.println(success + "          sssssssssssssssss   ");
+        return new CheckExerciseResponse(success, message, user, islandOpen, islandLevel,progress,levelUp);
     }
 
 
@@ -239,6 +249,41 @@ public class IslandsController {
         LevelsEntity level = this.persist.getLevelByUserIdAndIslandId(user,island);
         return level;
      }
+
+    @RequestMapping("/progress")
+    public Map<String, Object> getLevelProgress(
+            @RequestParam String token,
+            @RequestParam int level,
+            @RequestParam int islandId
+    ) {
+        try {
+            UserEntity user = persist.getUserByToken(token);
+            if (user == null) throw new RuntimeException("Invalid token");
+
+            IslandsEntity island = persist.loadObject(IslandsEntity.class, islandId);
+            if (island == null) throw new RuntimeException("Invalid island ID");
+
+            List<ExerciseHistoryEntity> allHistory = persist.getExercisesByUserIdAndIsland(user, island);
+            if (allHistory == null || allHistory.isEmpty()) throw new RuntimeException("No exercise history");
+
+            List<ExerciseHistoryEntity> currentLevelHistory = allHistory.stream()
+                    .filter(e -> e.getLevel() == level)
+                    .toList();
+
+            return LevelUp.calculateLevelProgress(currentLevelHistory, level);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            return Map.of(
+                    "calculatedLevel", level,
+                    "successRate", 0.0,
+                    "progressToNextLevel", 0.0,
+                    "statusMessage", null
+            );
+        }
+    }
+
     @PostConstruct
     public void init() {
 //       System.out.println(multiplicationTable("C34B1B2B6FCFC8307CE1A78006DD6A0E",4));

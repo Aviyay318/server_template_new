@@ -32,20 +32,28 @@ public class BaseMath {
     }
 
     public Map<String, Object> getExercise() {
+        int num1, num2;
 
-
-        int num1 = operator.equals("+")||operator.equals("-")?this.random.nextInt(Math.max(1, maxRange)):this.minRange;
-        int num2 = this.operator.equals("-")
-                ? this.random.nextInt(Math.max(1, num1))
-                : this.random.nextInt(Math.max(1, maxRange));
-
+        if (this.operator.equals("/")) {
+            num2 = this.random.nextInt(Math.max(1, maxRange - minRange + 1)) + minRange;
+            int solution = this.random.nextInt(Math.max(1, maxRange - minRange + 1)) + minRange;
+            num1 = num2 * solution;
+            this.values.put("solution", solution);
+        } else {
+            num1 = this.random.nextInt(Math.max(1, maxRange - minRange + 1)) + minRange;
+            num2 = this.operator.equals("-")
+                    ? this.random.nextInt(Math.max(1, num1 - minRange + 1)) + minRange
+                    : this.random.nextInt(Math.max(1, maxRange - minRange + 1)) + minRange;
+            this.values.put("solution", calculate(num1, num2));
+        }
 
         this.values.put("id", id);
         this.values.put("num1", num1);
         this.values.put("operator", this.operator);
         this.values.put("num2", num2);
         this.values.put("equalsSign", "=");
-        this.values.put("solution", calculate(num1, num2));
+        this.values.put("solutionMethod", "לבנתיים");
+
         return values;
     }
 
@@ -64,7 +72,6 @@ public class BaseMath {
         int min = Math.max(0, solution - range);
         int max = solution + range;
 
-        // נוודא שהטווח לפחות בגודל 1
         if (max <= min) {
             max = min + range;
         }
@@ -73,7 +80,7 @@ public class BaseMath {
 
         while (optionsSet.size() < 4) {
             int r = max - min + 1;
-            if (r <= 0) break; // הגנה נוספת
+            if (r <= 0) break;
             int fakeOption = random.nextInt(r) + min;
             optionsSet.add(fakeOption);
         }
@@ -86,6 +93,7 @@ public class BaseMath {
         result.put("correctIndex", options.indexOf(solution));
         return result;
     }
+
     public Map<String, Object> getValues() {
         return values;
     }

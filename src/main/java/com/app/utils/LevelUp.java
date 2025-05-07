@@ -1,37 +1,42 @@
 package com.app.utils;
 
 import com.app.entities.ExerciseHistoryEntity;
-
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+import org.json.JSONObject;
 
 public class LevelUp {
 
     public static final int MIN_LEVEL = 1;
     public static final int FAST_COMPLETION_TIME = 30;
 
-    // קידום מואץ
     public static final double EXCELLENT_SUCCESS_RATE = 0.9;
     public static final int EXCELLENT_STREAK = 5;
     public static final int EXCELLENT_FAST_ANSWERS = 3;
     public static final int FAST_PROMOTION_DIVIDER = 5;
 
-    // קידום רגיל
     public static final double AVERAGE_SUCCESS_RATE = 0.5;
     public static final int REGULAR_PROMOTION_DIVIDER = 5;
 
-    // ירידה ברמה
     public static final double POOR_SUCCESS_RATE = 0.3;
     public static final int MAX_WRONG_STREAK_FOR_DEMOTION = 5;
 
-    // חסינות מירידה לאחר קידום
     public static final int IMMUNITY_AFTER_PROMOTION = 10;
 
-    /**
-     * מחשבת את רמת המשתמש לפי היסטוריית התרגולים, כולל חסינות מירידה,
-     * קידום מואץ, קידום רגיל וירידה חכמה
-     */
-    public static int calculateLevelFromHistory(List<ExerciseHistoryEntity> history, int currentLevel) {
-        if (history == null || history.isEmpty()) return currentLevel;
+    public static Map<String, Object> calculateLevelProgress(List<ExerciseHistoryEntity> fullHistory, int currentLevel) {
+        Map<String, Object> result = new HashMap<>();
+
+        List<ExerciseHistoryEntity> history = fullHistory.stream()
+                .filter(e -> e.getLevel() == currentLevel)
+                .collect(Collectors.toList());
+
+        if (history == null || history.isEmpty()) {
+            result.put("calculatedLevel", currentLevel);
+            result.put("successRate", 0.0);
+            result.put("progressToNextLevel", 0.0);
+            result.put("statusMessage", null);
+            return result;
+        }
 
         int totalCorrect = 0;
         int total = history.size();
@@ -59,41 +64,31 @@ public class LevelUp {
 
         bestStreak = Math.max(bestStreak, streak);
         double successRate = (double) totalCorrect / total;
+        result.put("successRate", successRate);
 
-        // אם יש פחות מ־10 תרגולים – חסינות מירידה
-        if (history.size() < IMMUNITY_AFTER_PROMOTION) {
-            return currentLevel;
-        }
+        int nextLevelDivider = successRate >= EXCELLENT_SUCCESS_RATE ? FAST_PROMOTION_DIVIDER : REGULAR_PROMOTION_DIVIDER;
+        int neededForNextLevel = (currentLevel + 1 - MIN_LEVEL) * nextLevelDivider;
+        double progress = Math.min(1.0, (double) totalCorrect / neededForNextLevel);
+        result.put("progressToNextLevel", progress * 100); // אחוזים
 
-        // קידום מואץ
-        if (successRate >= EXCELLENT_SUCCESS_RATE &&
+        int newLevel = currentLevel;
+
+        if (history.size() >= IMMUNITY_AFTER_PROMOTION &&
+                successRate >= EXCELLENT_SUCCESS_RATE &&
                 bestStreak >= EXCELLENT_STREAK &&
                 fastCorrect >= EXCELLENT_FAST_ANSWERS) {
-
-            int level = totalCorrect / FAST_PROMOTION_DIVIDER + MIN_LEVEL;
-            return Math.max(level, currentLevel);
+            newLevel = Math.max(currentLevel, totalCorrect / FAST_PROMOTION_DIVIDER + MIN_LEVEL);
+        } else if (successRate >= AVERAGE_SUCCESS_RATE) {
+            newLevel = Math.max(currentLevel, totalCorrect / REGULAR_PROMOTION_DIVIDER + MIN_LEVEL);
         }
 
-        // קידום רגיל
-        if (successRate >= AVERAGE_SUCCESS_RATE) {
-            int level = totalCorrect / REGULAR_PROMOTION_DIVIDER + MIN_LEVEL;
-            return Math.max(level, currentLevel);
-        }
+        result.put("calculatedLevel", newLevel);
+        result.put("statusMessage", newLevel > currentLevel ? "כל הכבוד! עברת לשלב הבא 🎉" : null);
 
-        // ירידה חכמה
-        if (successRate < POOR_SUCCESS_RATE &&
-                maxWrongStreak >= MAX_WRONG_STREAK_FOR_DEMOTION) {
-
-            return Math.max(MIN_LEVEL, currentLevel - 1); // יורד שלב אחד בלבד
-        }
-
-        // אחרת: נשאר באותה רמה
-        return currentLevel;
+        return result;
     }
 
-    /**
-     * מחזיר אחוזי הצלחה מהיסטוריה פשוטה
-     */
+
     public static double getSuccessRate(List<ExerciseHistoryEntity> history) {
         if (history == null || history.isEmpty()) return 0.0;
 

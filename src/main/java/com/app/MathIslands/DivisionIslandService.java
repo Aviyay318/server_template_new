@@ -11,8 +11,26 @@ public class DivisionIslandService extends BaseIslandService {
     protected BaseMath createService(int level, double success, int questionType) {
         multiplicationTableService service = new multiplicationTableService();
         service.setOperator("/");
-        service.setMaxRange(10);
-        service.setMinRange(level < 11 ? level : 1);
+
+        int adjustedLevel = level;
+
+        if (success >= 0.85 && level < 10) {
+            adjustedLevel++;
+        } else if (success < 0.5 && level > 1) {
+            adjustedLevel--;
+        }
+
+        int min = Math.max(1, adjustedLevel);
+        int max = Math.min(100, adjustedLevel * 4);
+
+        if (max - min < 4) {
+            max = min + 4;
+        }
+
+        service.setMinRange(min);
+        service.setMaxRange(max);
+
+
         return service;
     }
-}
+    }

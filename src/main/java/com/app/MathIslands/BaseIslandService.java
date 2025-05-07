@@ -107,6 +107,7 @@ public abstract class BaseIslandService implements MathIslandService {
         );
 
         result.put("id", exerciseId);
+        System.out.println(result);
         return result;
     }
 
