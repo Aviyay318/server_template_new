@@ -29,11 +29,11 @@ public class InstructionGenerator {
                 Constants.COMPLETE_TABLE_FAST_SCORE,
                 Constants.SCORE_WITH_CLUE,
                 Math.abs(Constants.WRONG_ANSWER_PENALTY),
-                (int)(LevelUp.EXCELLENT_SUCCESS_RATE * 100),
+                (int) (LevelUp.EXCELLENT_SUCCESS_RATE * 100),
                 LevelUp.EXCELLENT_STREAK,
                 LevelUp.EXCELLENT_FAST_ANSWERS,
-                (int)(LevelUp.AVERAGE_SUCCESS_RATE * 100),
-                (int)(LevelUp.POOR_SUCCESS_RATE * 100),
+                (int) (LevelUp.AVERAGE_SUCCESS_RATE * 100),
+                (int) (LevelUp.POOR_SUCCESS_RATE * 100),
                 LevelUp.FAST_COMPLETION_TIME
         );
 
