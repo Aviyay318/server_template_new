@@ -38,6 +38,11 @@ public class Constants {
             "השלם לוח",
             "שאלה אמריקאית"
     };
+    public static final int BASE_SCORE = 1;
+    public static final int LITERAL_SCORE_NO_CLUE = 5;
+    public static final int COMPLETE_TABLE_FAST_SCORE = 7;
+    public static final int SCORE_WITH_CLUE = 2;
+    public static final int WRONG_ANSWER_PENALTY = -2;
     public class IslandConstants {
         public static final int ISLAND_ADDITION_SUBTRACTION = 0;
         public static final int ISLAND_MULTIPLICATION = 50;

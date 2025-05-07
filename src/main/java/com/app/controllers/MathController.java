@@ -31,20 +31,18 @@ public class MathController {
     @GetMapping("/get-exercise")
     public Map<String, Object> getExercise(String token, int level) {
 
-        // שליפת משתמש לפי טוקן
+
         UserEntity user = this.persist.getUserByToken(token);
         if (user == null) {
             throw new RuntimeException("Invalid token");
         }
 
-        // יצירת תרגיל
+
         MathExercise mathExercise = new MathExercise(level);
         QuestionTypeEntity questionType = this.persist.loadObject(QuestionTypeEntity.class,1);
-        // שמירת ההיסטוריה
         ExerciseHistoryEntity exerciseHistory = new ExerciseHistoryEntity(user, level, mathExercise.toString(), false,mathExercise.getSolution().toString(),questionType);
         this.persist.save(exerciseHistory);
         mathExercise.setId(exerciseHistory.getId());
-        // החזרת JSON
         return mathExercise.toJson();
     }
 

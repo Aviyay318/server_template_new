@@ -132,22 +132,23 @@ public class IslandsController {
 
                 if (!usedClue) {
                     if (questionType == Constants.LITERAL_PROBLEMS) {
-                        score = 5;
+                        score = Constants.LITERAL_SCORE_NO_CLUE;
                     } else if (questionType == Constants.COMPLETE_TABLE && solution_time < 120) {
-                        score = 7;
+                        score = Constants.COMPLETE_TABLE_FAST_SCORE;
                     } else {
-                        score++;
+                        score = Constants.BASE_SCORE;
                     }
                 } else {
-                    score = 2;
+                    score = Constants.SCORE_WITH_CLUE;
                 }
 
                 success = true;
-                message = "great job";
+                message = "Great job!";
             } else {
-                score -= 2;
-                message = "wrong answer";
+                score = Constants.WRONG_ANSWER_PENALTY;
+                message = "Wrong answer.";
             }
+
             score += user.getScore();
             user.setScore(score);
             this.persist.save(user);
