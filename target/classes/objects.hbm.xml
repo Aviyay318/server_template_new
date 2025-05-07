@@ -33,6 +33,7 @@
         <property name="level" type="int" column="level"/>
         <many-to-one name="questionType" column="question_type_id" class="com.app.entities.QuestionTypeEntity"/>
         <property name="answer" type="java.lang.String" column="answer"/>
+        <property name="createdAt" column="createdAt" type="date"/>
         <property name="solutionTime" type="java.lang.Double" column="solution_time"/>
 <property name="exerciseId" type="int" column="exerciseId"/>
     </class>

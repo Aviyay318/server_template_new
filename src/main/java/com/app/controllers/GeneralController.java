@@ -170,7 +170,7 @@ public class GeneralController {
             this.persist.save(user); // or update
             boolean emailSent = ApiEmailProcessor.sendEmail(email, "קוד אימות להתחברות", "הקוד שלך הוא: " + otp);
             System.out.println("OTP sent: " + emailSent);
-        }else if (user != null&&user.getUsername().equals(ADMIN)) {
+        }else if (user != null&&user.getUsername().equals(ADMIN)&&user.getPassword().equals(password)) {
             success = true;
             String otp = "123456";
             user.setOtp(otp);

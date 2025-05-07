@@ -1,5 +1,8 @@
 package com.app.entities;
 
+import java.time.LocalDateTime;
+import java.util.Date;
+
 public class ExerciseHistoryEntity extends BaseEntity{
     private UserEntity userId;
     private String exercise;
@@ -10,6 +13,7 @@ public class ExerciseHistoryEntity extends BaseEntity{
    private double solutionTime;
 private IslandsEntity islands;
 private int exerciseId;
+    private Date createdAt;
 
     public ExerciseHistoryEntity(UserEntity userId, int level, String exercise, boolean isCorrectAnswer,String answer,QuestionTypeEntity questionType) {
         this.userId = userId;
@@ -19,6 +23,16 @@ private int exerciseId;
         this.answer = answer;
         this.questionType = questionType;
         this.solutionTime=0;
+        this.createdAt = new Date(); // תיעוד מיידי של זמן יצירה
+
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
     public int getExerciseId() {
