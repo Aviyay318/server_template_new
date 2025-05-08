@@ -10,6 +10,7 @@ import com.app.service.Persist;
 import com.app.utils.Constants;
 import com.app.utils.IslandUtils;
 import com.app.utils.LevelUp;
+import org.apache.tomcat.jni.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -211,16 +212,7 @@ public class IslandsController {
         return IslandUtils.getIslandsWithOpenStatus(persist, token);
     }
 
-    @RequestMapping("/feedback")
-    public Map<String, Object> getFeedbackConfig() {
-        Map<String, Object> config = new HashMap<>();
-        config.put("optimal", Map.of("exp", 33.3333333, "stars", 3, "message", "מושלם", "maxTime", 10, "sound", "RIGHT_ANSWER"));
-        config.put("regular", Map.of("exp", 20, "stars", 2, "message", "טוב מאוד", "maxTime", 15, "sound", "RIGHT_ANSWER"));
-        config.put("delayed", Map.of("exp", 10, "stars", 1, "message", "מספיק", "maxTime", 30, "sound", "RIGHT_ANSWER"));
-        config.put("usedAClue", Map.of("exp", 10, "stars", 1, "message", "טעון שיפור", "sound", "RIGHT_ANSWER"));
-        config.put("wrong", Map.of("exp", 0, "stars", 0, "message", "נסה שוב", "sound", "WRONG_ANSWER"));
-        return config;
-    }
+
 
     @RequestMapping("/get-level-by-island")
     public int getLevelByIsland(String token,int islandId){
@@ -255,33 +247,40 @@ public class IslandsController {
             @RequestParam String token,
             @RequestParam int level,
             @RequestParam int islandId
-    ) {
+    ) {   Map<String, Object> progressMap = new HashMap<>();
         try {
-            UserEntity user = persist.getUserByToken(token);
-            if (user == null) throw new RuntimeException("Invalid token");
+            UserEntity user = this.persist.getUserByToken(token);
 
-            IslandsEntity island = persist.loadObject(IslandsEntity.class, islandId);
-            if (island == null) throw new RuntimeException("Invalid island ID");
+            IslandsEntity island = this.persist.loadObject(IslandsEntity.class, islandId);
+            LevelsEntity islandLevel = this.persist.getLevelByUserIdAndIslandId(user, island);
 
-            List<ExerciseHistoryEntity> allHistory = persist.getExercisesByUserIdAndIsland(user, island);
-            if (allHistory == null || allHistory.isEmpty()) throw new RuntimeException("No exercise history");
+            List<ExerciseHistoryEntity> history = this.persist.getExercisesByUserIdAndIsland(user, island);
 
-            List<ExerciseHistoryEntity> currentLevelHistory = allHistory.stream()
-                    .filter(e -> e.getLevel() == level)
-                    .toList();
+            int currentLevel = islandLevel.getLevel();
+            List<ExerciseHistoryEntity> currentLevelHistory = history.stream()
+                    .filter(e -> e.getLevel() == currentLevel)
+                    .collect(Collectors.toList());
 
-            return LevelUp.calculateLevelProgress(currentLevelHistory, level);
+            Map<String, Object> levelDetails = calculateLevelProgress(currentLevelHistory, currentLevel);
+
+            level = (int) levelDetails.get("calculatedLevel");
+            double progress = (double) levelDetails.get("progressToNextLevel");
+            String levelUp = (String) levelDetails.get("statusMessage");
+
+            progressMap.put("progress",progress);
+            progressMap.put("levelUp",levelUp);
+            progressMap.put("level",level);
 
         } catch (Exception e) {
             e.printStackTrace();
 
             return Map.of(
-                    "calculatedLevel", level,
-                    "successRate", 0.0,
-                    "progressToNextLevel", 0.0,
-                    "statusMessage", null
+                    "level", level,
+                    "progress", 0.0,
+                    "levelUp", null
             );
         }
+        return progressMap;
     }
 
     @PostConstruct

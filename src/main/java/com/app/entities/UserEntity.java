@@ -119,7 +119,7 @@ public class UserEntity extends BaseEntity{
                 ", password='" + password + '\'' +
                 ", age=" + age +
                 ", email='" + email + '\'' +
-                ", level=" + score +
+                ", score=" + score +
                 ", otp='" + otp + '\'' +
                 ", gender='" + gender + '\'' +
                 '}';
