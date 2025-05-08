@@ -173,9 +173,7 @@ public class IslandsController {
             levelUp = (String) levelDetails.get("statusMessage");
 
             islandLevel.setLevel(level);
-            if (level > islandLevel.getHighestLevel()) {
-                islandLevel.setHighestLevel(level);
-            }
+
             this.persist.save(islandLevel);
 
             islandOpen = openIslands(score, user);
