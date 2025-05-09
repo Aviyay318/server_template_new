@@ -53,6 +53,7 @@ public class BaseMath {
         this.values.put("num2", num2);
         this.values.put("equalsSign", "=");
         this.values.put("solutionMethod", "לבנתיים");
+        this.values.put("hint", ",תחשוב טוב טי סאקה");
 
         return values;
     }

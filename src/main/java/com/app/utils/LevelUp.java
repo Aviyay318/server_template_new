@@ -22,7 +22,6 @@ public class LevelUp {
     public static final int MAX_WRONG_STREAK_FOR_DEMOTION = 5;
 
     public static final int IMMUNITY_AFTER_PROMOTION = 10;
-
     public static Map<String, Object> calculateLevelProgress(List<ExerciseHistoryEntity> fullHistory, int currentLevel) {
         Map<String, Object> result = new HashMap<>();
 
@@ -40,53 +39,63 @@ public class LevelUp {
 
         int totalCorrect = 0;
         int total = history.size();
-        int streak = 0;
-        int bestStreak = 0;
         int fastCorrect = 0;
-        int wrongStreak = 0;
-        int maxWrongStreak = 0;
+        int bestStreak = 0;
+        int streak = 0;
 
         for (ExerciseHistoryEntity e : history) {
             if (e.isCorrectAnswer()) {
                 totalCorrect++;
                 streak++;
-                wrongStreak = 0;
                 if (e.getSolutionTime() < FAST_COMPLETION_TIME) {
                     fastCorrect++;
                 }
             } else {
                 bestStreak = Math.max(bestStreak, streak);
                 streak = 0;
-                wrongStreak++;
-                maxWrongStreak = Math.max(maxWrongStreak, wrongStreak);
             }
         }
 
         bestStreak = Math.max(bestStreak, streak);
+        int totalWrong = total - totalCorrect;
+
         double successRate = (double) totalCorrect / total;
         result.put("successRate", successRate);
 
-        int nextLevelDivider = successRate >= EXCELLENT_SUCCESS_RATE ? FAST_PROMOTION_DIVIDER : REGULAR_PROMOTION_DIVIDER;
-        int neededForNextLevel = (currentLevel + 1 - MIN_LEVEL) * nextLevelDivider;
-        double progress = Math.min(1.0, (double) totalCorrect / neededForNextLevel);
-        result.put("progressToNextLevel", progress * 100); // אחוזים
+        // חישוב איכות התשובות
+        double qualityBoost = successRate;
+        if (bestStreak >= EXCELLENT_STREAK) qualityBoost += 0.1;
+        if (fastCorrect >= EXCELLENT_FAST_ANSWERS) qualityBoost += 0.1;
+        qualityBoost = Math.min(qualityBoost, 1.0);
+
+        // בסיס קבוע לעלייה/ירידה (נגיד, מתוך 100)
+        double baseUnit = 100.0 / (currentLevel * 5.0);
+
+        // חישוב ההשפעה של הצלחות וכישלונות
+        double gain = totalCorrect * baseUnit * qualityBoost;
+        double loss = totalWrong * baseUnit * (1 - successRate);
+
+        // פרוגרס נטו, תמיד בין 0 ל־1
+        double rawProgress = gain - loss;
+        double progress = Math.max(0, Math.min(100, rawProgress));
+        if (history.get(history.size()-1).isCorrectAnswer()&&progress==0){
+            progress = 1;
+        }
+        result.put("progressToNextLevel", progress);
 
         int newLevel = currentLevel;
+        String statusMessage = null;
 
-        if (history.size() >= IMMUNITY_AFTER_PROMOTION &&
-                successRate >= EXCELLENT_SUCCESS_RATE &&
-                bestStreak >= EXCELLENT_STREAK &&
-                fastCorrect >= EXCELLENT_FAST_ANSWERS) {
-            newLevel = Math.max(currentLevel, totalCorrect / FAST_PROMOTION_DIVIDER + MIN_LEVEL);
-        } else if (successRate >= AVERAGE_SUCCESS_RATE) {
-            newLevel = Math.max(currentLevel, totalCorrect / REGULAR_PROMOTION_DIVIDER + MIN_LEVEL);
+        if (progress >= 100.0) {
+            newLevel++;
+            statusMessage = "כל הכבוד! עברת לשלב הבא 🎉";
         }
 
         result.put("calculatedLevel", newLevel);
-        result.put("statusMessage", newLevel > currentLevel ? "כל הכבוד! עברת לשלב הבא 🎉" : null);
-
+        result.put("statusMessage", statusMessage);
         return result;
     }
+
 
 
     public static double getSuccessRate(List<ExerciseHistoryEntity> history) {

@@ -1,43 +1,49 @@
 package com.app.utils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class InstructionGenerator {
 
-    public static String getUserInstructions() {
-        return String.format("""
-                        🧮 <b>הוראות שימוש במערכת הלמידה:</b><br><br>
-                        🎯 <b>ניקוד:</b><br>
-                        - תשובה נכונה רגילה: %d נקודות.<br>
-                        - תשובה נכונה ללא שימוש ברמז בשאלה מילולית: %d נקודות.<br>
-                        - תשובה נכונה מהירה (פחות מ-2 דקות בשאלות טבלה): %d נקודות.<br>
-                        - שימוש ברמז: %d נקודות בלבד.<br>
-                        - תשובה שגויה: הפחתה של %d נקודות.<br><br>
-                        ⬆️ <b>קידום רמה:</b><br>
-                        - הצלחה של מעל %d%% מהשאלות + רצף של %d תשובות נכונות + %d תשובות מהירות – קידום מהיר.<br>
-                        - הצלחה רגילה (%d%% ומעלה) – קידום רגיל.<br>
-                        - הצלחה חלשה (פחות מ-%d%%) + רצף טעויות – ירידה ברמה.<br><br>
-                        🧠 <b>טיפים:</b><br>
-                        - נסה לענות מהר (פחות מ-%d שניות) כדי לקבל בונוס!<br>
-                        - שימוש ברמז מקטין ניקוד – השתמש בו רק כשצריך.<br>
-                        - טעות זה חלק מהלמידה! המערכת תתאים את הרמה עבורך.<br><br>
-                        בהצלחה! 💪
-                        """,
-                Constants.BASE_SCORE,
-                Constants.LITERAL_SCORE_NO_CLUE,
-                Constants.COMPLETE_TABLE_FAST_SCORE,
-                Constants.SCORE_WITH_CLUE,
-                Math.abs(Constants.WRONG_ANSWER_PENALTY),
-                (int) (LevelUp.EXCELLENT_SUCCESS_RATE * 100),
-                LevelUp.EXCELLENT_STREAK,
-                LevelUp.EXCELLENT_FAST_ANSWERS,
-                (int) (LevelUp.AVERAGE_SUCCESS_RATE * 100),
-                (int) (LevelUp.POOR_SUCCESS_RATE * 100),
-                LevelUp.FAST_COMPLETION_TIME
+    public static Map<String, Object> getUserInstructionsJson() {
+        Map<String, Object> result = new HashMap<>();
+
+        List<String> scoring = List.of(
+                "תשובה נכונה רגילה: " + Constants.BASE_SCORE + " נקודות.",
+                "תשובה נכונה ללא שימוש ברמז בשאלה מילולית: " + Constants.LITERAL_SCORE_NO_CLUE + " נקודות.",
+                "תשובה נכונה מהירה (פחות מ-2 דקות בהשלם את הלוח): " + Constants.COMPLETE_TABLE_FAST_SCORE + " נקודות.",
+                "שימוש ברמז: " + Constants.SCORE_WITH_CLUE + " נקודות בלבד.",
+                "תשובה שגויה: הפחתה של " + Math.abs(Constants.WRONG_ANSWER_PENALTY) + " נקודות."
         );
 
+        List<String> leveling = List.of(
+                "הצלחה של מעל " + (int) (LevelUp.EXCELLENT_SUCCESS_RATE * 100) + "% מהשאלות + רצף של " + LevelUp.EXCELLENT_STREAK + " תשובות נכונות + " + LevelUp.EXCELLENT_FAST_ANSWERS + " תשובות מהירות – קידום מהיר.",
+                "הצלחה רגילה (" + (int) (LevelUp.AVERAGE_SUCCESS_RATE * 100) + "% ומעלה) – קידום רגיל.",
+                "הצלחה חלשה (פחות מ-" + (int) (LevelUp.POOR_SUCCESS_RATE * 100) + "%) + רצף טעויות – ירידה ברמה."
+        );
+
+        List<String> helpers = List.of(
+                "בכל תרגיל עומד לרשותכם לוח עזר אישי – תוכלו לצייר, לכתוב ולעשות בו שימוש חופשי.",
+                "עד טווח 30 תופיע גם עזרה ויזואלית: צורות, סמלים ודוגמאות שיעזרו לכם להבין טוב יותר.",
+                "מטווח 31 ואילך – העזרה תהפוך לטקסטואלית (רמזים במילים בלבד), כך שתוכלו להתקדם בהבנה."
+        );
+
+
+        List<String> tips = List.of(
+                "נסו לענות מהר (פחות מ-" + LevelUp.FAST_COMPLETION_TIME + " שניות) כדי לקבל בונוס!",
+                "השתמשו ברמזים כשאתם באמת צריכים – הם מורידים ניקוד.",
+                "אל תפחדו לטעות – ככה לומדים! המערכת מתאימה את עצמה לקצב שלכם."
+        );
+
+        result.put("scoring", scoring);
+        result.put("leveling", leveling);
+        result.put("helpers", helpers);
+        result.put("tips", tips);
+
+        return result;
     }
+
 
 
     private static Map<String, Object> createInstruction(

@@ -165,9 +165,10 @@ public class IslandsController {
             List<ExerciseHistoryEntity> currentLevelHistory = history.stream()
                     .filter(e -> e.getLevel() == currentLevel)
                     .collect(Collectors.toList());
-
+            System.out.println("*************** ");
+            System.out.println(currentLevelHistory.stream().map(ExerciseHistoryEntity::getLevel).toList());
             Map<String, Object> levelDetails = calculateLevelProgress(currentLevelHistory, currentLevel);
-
+            System.out.println(levelDetails);
            level = (int) levelDetails.get("calculatedLevel");
             progress = (double) levelDetails.get("progressToNextLevel");
             levelUp = (String) levelDetails.get("statusMessage");
