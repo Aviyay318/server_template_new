@@ -22,7 +22,7 @@ public class LevelUp {
     public static final int MAX_WRONG_STREAK_FOR_DEMOTION = 5;
 
     public static final int IMMUNITY_AFTER_PROMOTION = 10;
-    public static Map<String, Object> calculateLevelProgress(List<ExerciseHistoryEntity> fullHistory, int currentLevel) {
+    public static Map<String, Object> calculateLevelProgress(List<ExerciseHistoryEntity> fullHistory, int currentLevel,double progress) {
         Map<String, Object> result = new HashMap<>();
 
         List<ExerciseHistoryEntity> history = fullHistory.stream()
@@ -62,25 +62,25 @@ public class LevelUp {
         double successRate = (double) totalCorrect / total;
         result.put("successRate", successRate);
 
-        // חישוב איכות התשובות
         double qualityBoost = successRate;
-        if (bestStreak >= EXCELLENT_STREAK) qualityBoost += 0.1;
-        if (fastCorrect >= EXCELLENT_FAST_ANSWERS) qualityBoost += 0.1;
+        if (bestStreak >= EXCELLENT_STREAK) qualityBoost += 0.5;
+        if (fastCorrect >= EXCELLENT_FAST_ANSWERS) qualityBoost += 0.5;
         qualityBoost = Math.min(qualityBoost, 1.0);
 
-        // בסיס קבוע לעלייה/ירידה (נגיד, מתוך 100)
         double baseUnit = 100.0 / (currentLevel * 5.0);
 
-        // חישוב ההשפעה של הצלחות וכישלונות
         double gain = totalCorrect * baseUnit * qualityBoost;
         double loss = totalWrong * baseUnit * (1 - successRate);
-
-        // פרוגרס נטו, תמיד בין 0 ל־1
+        System.out.println("gain: " + gain);
+        System.out.println("loss: " + loss);
         double rawProgress = gain - loss;
-        double progress = Math.max(0, Math.min(100, rawProgress));
-        if (history.get(history.size()-1).isCorrectAnswer()&&progress==0){
-            progress = 1;
+         double tempProgress = Math.max(0, Math.min(100, rawProgress));
+
+        if ((history.get(history.size()-1).isCorrectAnswer())&&(progress+tempProgress<=progress)){
+            progress += 1;
         }
+        progress+= tempProgress;
+        progress = Math.min(100,progress);
         result.put("progressToNextLevel", progress);
 
         int newLevel = currentLevel;
@@ -88,7 +88,7 @@ public class LevelUp {
 
         if (progress >= 100.0) {
             newLevel++;
-            statusMessage = "כל הכבוד! עברת לשלב הבא 🎉";
+            statusMessage = "כל הכבוד! עברת לשלב " + newLevel + " 🎉";
         }
 
         result.put("calculatedLevel", newLevel);

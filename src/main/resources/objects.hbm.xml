@@ -88,6 +88,8 @@
        <many-to-one name="user" column="userId" class="com.app.entities.UserEntity"/>
        <many-to-one name="island" column="islandId" class="com.app.entities.IslandsEntity"/>
         <property name="level" column="level" type="int"/>
+
+        <property name="progress" type="java.lang.Double" column="progress"/>
     </class>
 
 

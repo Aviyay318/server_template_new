@@ -4,7 +4,7 @@ public class LevelsEntity extends BaseEntity{
     private UserEntity user;
     private IslandsEntity island;
     private int level;
-
+private double progress;
 
     public LevelsEntity() {
     }
@@ -13,6 +13,15 @@ public class LevelsEntity extends BaseEntity{
         this.user = user;
         this.island = island;
         this.level = level;
+        this.progress = 0;
+    }
+
+    public double getProgress() {
+        return progress;
+    }
+
+    public void setProgress(double progress) {
+        this.progress = progress;
     }
 
     public UserEntity getUser() {

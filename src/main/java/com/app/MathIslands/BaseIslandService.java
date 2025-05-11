@@ -9,10 +9,7 @@ import com.app.utils.Constants;
 import com.app.utils.LevelUp;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class BaseIslandService implements MathIslandService {
 
@@ -30,6 +27,7 @@ public abstract class BaseIslandService implements MathIslandService {
         history.setExercise(question);
         history.setAnswer(answer);
         history.setExerciseId(history.getId());
+        history.setCreatedAt(new Date());
         persist.save(history);
         return history.getId();
     }
@@ -107,7 +105,6 @@ public abstract class BaseIslandService implements MathIslandService {
         );
 
         result.put("id", exerciseId);
-        System.out.println(result);
         return result;
     }
 

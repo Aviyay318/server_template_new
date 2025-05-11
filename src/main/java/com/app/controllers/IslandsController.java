@@ -167,14 +167,30 @@ public class IslandsController {
                     .collect(Collectors.toList());
             System.out.println("*************** ");
             System.out.println(currentLevelHistory.stream().map(ExerciseHistoryEntity::getLevel).toList());
-            Map<String, Object> levelDetails = calculateLevelProgress(currentLevelHistory, currentLevel);
-            System.out.println(levelDetails);
-           level = (int) levelDetails.get("calculatedLevel");
-            progress = (double) levelDetails.get("progressToNextLevel");
-            levelUp = (String) levelDetails.get("statusMessage");
+            if (questionType == Constants.COMPLETE_TABLE) {
+                System.out.println("11111111 "+solution_time);
+                if (solution_time < 120){
+                    progress = 1.5 + islandLevel.getProgress();
+                }else {
+                    progress = 1 + islandLevel.getProgress();
 
-            islandLevel.setLevel(level);
+                }
+            }else{
+                Map<String, Object> levelDetails = calculateLevelProgress(currentLevelHistory, currentLevel,islandLevel.getProgress());
+                System.out.println(levelDetails);
+                level = (int) levelDetails.get("calculatedLevel");
+                progress = (double) levelDetails.get("progressToNextLevel");
+                levelUp = (String) levelDetails.get("statusMessage");
+                islandLevel.setLevel(level);
+            }
 
+
+
+            if (progress==100){
+                islandLevel.setProgress(0);
+            }else{
+                islandLevel.setProgress(progress);
+            }
             this.persist.save(islandLevel);
 
             islandOpen = openIslands(score, user);
@@ -199,7 +215,7 @@ public class IslandsController {
                 if (!alreadyUnlocked) {
                     LevelsEntity newLevel = new LevelsEntity(user, island, 1);
                     this.persist.save(newLevel);
-                    islandOpen = "Island " + island.getName() + " unlocked for you";
+                    islandOpen =  island.getName() ;
                     System.out.println("Island " + island.getName() + " unlocked for user " + user.getUsername());
                 }
             }
@@ -260,7 +276,7 @@ public class IslandsController {
                     .filter(e -> e.getLevel() == currentLevel)
                     .collect(Collectors.toList());
 
-            Map<String, Object> levelDetails = calculateLevelProgress(currentLevelHistory, currentLevel);
+            Map<String, Object> levelDetails = calculateLevelProgress(currentLevelHistory, currentLevel,islandLevel.getProgress());
 
             level = (int) levelDetails.get("calculatedLevel");
             double progress = (double) levelDetails.get("progressToNextLevel");

@@ -39,7 +39,19 @@ public class BaseMath {
             int solution = this.random.nextInt(Math.max(1, maxRange - minRange + 1)) + minRange;
             num1 = num2 * solution;
             this.values.put("solution", solution);
+        } else if (this.operator.equals("*")) {
+            if (minRange <= 10) {
+                // שלבים 1–10: num1 = שלב, num2 = 1–10
+                num1 = minRange;
+                num2 = this.random.nextInt(maxRange) + 1;
+            } else {
+                // שלבים 11+: num1, num2 = 1–10
+                num1 = this.random.nextInt(maxRange) + 1;
+                num2 = this.random.nextInt(maxRange) + 1;
+            }
+            this.values.put("solution", calculate(num1, num2));
         } else {
+            // כל שאר האופרטורים
             num1 = this.random.nextInt(Math.max(1, maxRange - minRange + 1)) + minRange;
             num2 = this.operator.equals("-")
                     ? this.random.nextInt(Math.max(1, num1 - minRange + 1)) + minRange
