@@ -136,9 +136,7 @@ public class IslandsController {
                 if (!usedClue) {
                     if (questionType == Constants.LITERAL_PROBLEMS) {
                         score = Constants.LITERAL_SCORE_NO_CLUE;
-                    } else if (questionType == Constants.COMPLETE_TABLE && solution_time < 120) {
-                        score = Constants.COMPLETE_TABLE_FAST_SCORE;
-                    } else {
+                    }  else {
                         score = Constants.BASE_SCORE;
                     }
                 } else {
@@ -148,8 +146,16 @@ public class IslandsController {
                 success = true;
                 message = "Great job!";
             } else {
-                score = Constants.WRONG_ANSWER_PENALTY;
-                message = "Wrong answer.";
+          if (questionType == Constants.COMPLETE_TABLE ) {
+              if (solution_time < 120){
+                  score = Constants.COMPLETE_TABLE_FAST_SCORE;
+              }
+
+          } else {
+              score = Constants.WRONG_ANSWER_PENALTY;
+              message = "Wrong answer.";
+          }
+
             }
 
             score += user.getScore();
@@ -165,8 +171,6 @@ public class IslandsController {
             List<ExerciseHistoryEntity> currentLevelHistory = history.stream()
                     .filter(e -> e.getLevel() == currentLevel)
                     .collect(Collectors.toList());
-            System.out.println("*************** ");
-            System.out.println(currentLevelHistory.stream().map(ExerciseHistoryEntity::getLevel).toList());
             if (questionType == Constants.COMPLETE_TABLE) {
                 System.out.println("11111111 "+solution_time);
                 if (solution_time < 120){
@@ -186,7 +190,7 @@ public class IslandsController {
 
 
 
-            if (progress==100){
+            if (progress>=100){
                 islandLevel.setProgress(0);
             }else{
                 islandLevel.setProgress(progress);

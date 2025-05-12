@@ -21,7 +21,7 @@ public class DivisionIslandService extends BaseIslandService {
         }
 
         int min = Math.max(1, adjustedLevel);
-        int max = Math.min(100, adjustedLevel * 4);
+        int max = Math.min(100, adjustedLevel * 2);
 
         if (max - min < 4) {
             max = min + 4;

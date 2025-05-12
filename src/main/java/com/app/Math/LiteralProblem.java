@@ -14,10 +14,10 @@ public class LiteralProblem {
         ObjectsEntity obj1 = objects.get(random.nextInt(objects.size()));
         ObjectsEntity obj2 = objects.get(random.nextInt(objects.size()));
 
-        int num1 = random.nextInt(1, maxRange);
-        int num2;
+        double num1 = random.nextInt(1, maxRange);
+        double num2;
         if (operator.equals("-")) {
-            num2 = random.nextInt(1, num1);
+            num2 = random.nextInt(1, (int) num1);
         } else if (operator.equals("/")) {
             num2 = random.nextInt(1, maxRange); // avoid division by 0
         } else {
@@ -57,7 +57,7 @@ public class LiteralProblem {
                 "svg", obj2.getSvg()
         ));
 
-        int answer = switch (operator) {
+        double answer = switch (operator) {
             case "+" -> num1 + num2;
             case "-" -> num1 - num2;
             case "*" -> num1 * num2;

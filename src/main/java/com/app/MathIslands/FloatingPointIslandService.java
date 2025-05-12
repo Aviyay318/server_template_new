@@ -17,35 +17,58 @@ public class FloatingPointIslandService extends BaseIslandService {
             public Map<String, Object> getExercise() {
                 Map<String, Object> ex = new HashMap<>();
                 Random rand = getRandom();
-                String op = getOperatorByLevel(level);  // קובע אופרטור לפי שלב
+                String op = getOperatorByLevel(level);  // אופרטור לפי שלב
 
                 if (level % 2 == 0) {
-                    // שלב זוגי → מספרים עשרוניים
-                    double num1 = round(rand.nextDouble() * maxRange + minRange);
-                    double num2;
-                    do {
-                        num2 = round(rand.nextDouble() * maxRange + minRange);
-                    } while (op.equals("/") && num2 == 0);
+                    // שלבים זוגיים - תרגילים עשרוניים עם דרגת קושי עולה
+                    double num1, num2;
+                    int decimalPlaces;
 
-                    double result = calculateDecimal(num1, num2, op);
+                    if (level <= 8) {
+                        // שלבים 2–8: מספר אחד עשרוני והשני שלם, ספרה אחת אחרי הנקודה
+                        decimalPlaces = 1;
+                        num1 = round(rand.nextDouble() * maxRange + minRange, decimalPlaces);
+                        num2 = rand.nextInt(maxRange - minRange + 1) + minRange;
+                    } else if (level <= 16) {
+                        // שלבים 10–16: שני מספרים עשרוניים עם ספרה אחת
+                        decimalPlaces = 1;
+                        num1 = round(rand.nextDouble() * maxRange + minRange, decimalPlaces);
+                        num2 = round(rand.nextDouble() * maxRange + minRange, decimalPlaces);
+                    } else if (level <= 36) {
+                        // שלבים 18–36: עשרוני עם ספרה אחת או שתיים
+                        decimalPlaces = rand.nextBoolean() ? 1 : 2;
+                        num1 = round(rand.nextDouble() * maxRange + minRange, decimalPlaces);
+                        num2 = round(rand.nextDouble() * maxRange + minRange, decimalPlaces);
+                    } else {
+                        // שלבים מתקדמים: 1–3 ספרות אחרי הנקודה
+                        decimalPlaces = rand.nextInt(3) + 1;
+                        num1 = round(rand.nextDouble() * maxRange + minRange, decimalPlaces);
+                        num2 = round(rand.nextDouble() * maxRange + minRange, decimalPlaces);
+                    }
+
+                    if (op.equals("/") && num2 == 0) {
+                        num2 = 1; // מניעת חילוק באפס
+                    }
+
+                    double result = calculateDecimal(num1, num2, op, decimalPlaces);
 
                     ex.put("type", "decimal");
                     ex.put("num1", num1);
                     ex.put("num2", num2);
                     ex.put("operator", op);
                     ex.put("solution", result);
+                    ex.put("equalsSign", "=");
                     ex.put("solutionMethod", "פתור לפי פעולת " + op);
                 } else {
-                    // שלב אי-זוגי → תרגיל בין שברים
+                    // שלבים אי זוגיים – שברים
                     int denominator1, denominator2;
-
                     if (level <= 10) {
-                        denominator1 = denominator2 = rand.nextInt(10) + 1;  // מכנה משותף
+                        denominator1 = denominator2 = rand.nextInt(10) + 1;
                     } else {
                         denominator1 = rand.nextInt(level + 5) + 1;
                         do {
                             denominator2 = rand.nextInt(level + 5) + 1;
-                        } while (denominator2 == denominator1); // מכנים שונים
+                        } while (denominator2 == 0);
                     }
 
                     int numerator1 = level;
@@ -67,22 +90,24 @@ public class FloatingPointIslandService extends BaseIslandService {
                     ex.put("num2", f2.toString());
                     ex.put("operator", op);
                     ex.put("solution", resultFraction.toString());
+                    ex.put("equalsSign", "=");
                     ex.put("solutionMethod", "בצע פעולה בין שברים: " + op);
                 }
 
                 return ex;
             }
 
-            private double round(double val) {
-                return Math.round(val * 100.0) / 100.0;
+            private double round(double val, int decimalPlaces) {
+                double factor = Math.pow(10, decimalPlaces);
+                return Math.round(val * factor) / factor;
             }
 
-            private double calculateDecimal(double a, double b, String op) {
+            private double calculateDecimal(double a, double b, String op, int decimalPlaces) {
                 return switch (op) {
-                    case "+" -> round(a + b);
-                    case "-" -> round(a - b);
-                    case "*" -> round(a * b);
-                    case "/" -> b == 0 ? 0 : round(a / b);
+                    case "+" -> round(a + b, decimalPlaces);
+                    case "-" -> round(a - b, decimalPlaces);
+                    case "*" -> round(a * b, decimalPlaces);
+                    case "/" -> b == 0 ? 0 : round(a / b, decimalPlaces);
                     default -> throw new IllegalArgumentException("Invalid op: " + op);
                 };
             }
@@ -97,17 +122,20 @@ public class FloatingPointIslandService extends BaseIslandService {
     }
 
     private String getOperatorByLevel(int level) {
+        String[] ops = {"+", "-", "*", "/"};
+
+        if (level % 2 != 0) {
+            int index = ((level - 1) / 2) % ops.length;
+            return ops[index];
+        }
+
         if (level <= 10) return "+";
         else if (level <= 20) return "-";
         else if (level <= 30) return "*";
         else if (level <= 40) return "/";
-        else {
-            String[] ops = {"+", "-", "*", "/"};
-            return ops[new Random().nextInt(ops.length)];
-        }
+        else return ops[new Random().nextInt(ops.length)];
     }
 
-    // מחלקת שברים עם פעולות
     static class Fraction {
         int numerator;
         int denominator;
@@ -120,17 +148,17 @@ public class FloatingPointIslandService extends BaseIslandService {
         }
 
         public static Fraction add(Fraction a, Fraction b) {
-            int commonDenominator = lcm(a.denominator, b.denominator);
-            int n1 = a.numerator * (commonDenominator / a.denominator);
-            int n2 = b.numerator * (commonDenominator / b.denominator);
-            return new Fraction(n1 + n2, commonDenominator);
+            int commonDen = lcm(a.denominator, b.denominator);
+            int n1 = a.numerator * (commonDen / a.denominator);
+            int n2 = b.numerator * (commonDen / b.denominator);
+            return new Fraction(n1 + n2, commonDen);
         }
 
         public static Fraction subtract(Fraction a, Fraction b) {
-            int commonDenominator = lcm(a.denominator, b.denominator);
-            int n1 = a.numerator * (commonDenominator / a.denominator);
-            int n2 = b.numerator * (commonDenominator / b.denominator);
-            return new Fraction(n1 - n2, commonDenominator);
+            int commonDen = lcm(a.denominator, b.denominator);
+            int n1 = a.numerator * (commonDen / a.denominator);
+            int n2 = b.numerator * (commonDen / b.denominator);
+            return new Fraction(n1 - n2, commonDen);
         }
 
         public static Fraction multiply(Fraction a, Fraction b) {
