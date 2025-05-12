@@ -136,7 +136,9 @@ public class IslandsController {
                 if (!usedClue) {
                     if (questionType == Constants.LITERAL_PROBLEMS) {
                         score = Constants.LITERAL_SCORE_NO_CLUE;
-                    }  else {
+                    } else if (questionType == Constants.COMPLETE_TABLE && solution_time < 120) {
+                        score = Constants.COMPLETE_TABLE_FAST_SCORE;
+                    } else {
                         score = Constants.BASE_SCORE;
                     }
                 } else {
@@ -146,16 +148,8 @@ public class IslandsController {
                 success = true;
                 message = "Great job!";
             } else {
-          if (questionType == Constants.COMPLETE_TABLE ) {
-              if (solution_time < 120){
-                  score = Constants.COMPLETE_TABLE_FAST_SCORE;
-              }
-
-          } else {
-              score = Constants.WRONG_ANSWER_PENALTY;
-              message = "Wrong answer.";
-          }
-
+                score = Constants.WRONG_ANSWER_PENALTY;
+                message = "Wrong answer.";
             }
 
             score += user.getScore();
