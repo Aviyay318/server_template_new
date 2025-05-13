@@ -112,7 +112,12 @@ public class IslandsController {
             @RequestParam int solution_time,
             @RequestParam boolean usedClue,
             @RequestParam int questionType) {
-        System.out.println("!!!!!!!!!!!11");
+
+        System.out.println("=== START checkExercise ===");
+        System.out.println("Received params -> token: " + token + ", exerciseId: " + exerciseId +
+                ", answer: " + answer + ", solution_time: " + solution_time +
+                ", usedClue: " + usedClue + ", questionType: " + questionType);
+
         boolean success = false;
         String message = "wrong question id";
         int score = 1;
@@ -122,13 +127,23 @@ public class IslandsController {
         UserEntity user = null;
         LevelsEntity islandLevel = null;
         String levelUp = null;
+
         try {
             user = this.persist.getUserByToken(token);
             ExerciseHistoryEntity exerciseHistory = this.persist.getExerciseByExerciseId(exerciseId);
+
             if (exerciseHistory == null || user == null) {
-                return new CheckExerciseResponse(false, "Invalid token or exercise", null, null, islandLevel,0.0,null);
+                System.out.println("Invalid exercise or user.");
+                return new CheckExerciseResponse(false, "Invalid token or exercise", null, null, islandLevel, 0.0, null);
             }
-            if (exerciseHistory.getAnswer().equals(answer)) {
+
+            System.out.println("Stored answer in DB: " + exerciseHistory.getAnswer());
+
+            if (questionType == Constants.COMPLETE_TABLE ||
+                    (exerciseHistory.getAnswer() != null && exerciseHistory.getAnswer().equals(answer))) {
+
+                System.out.println("Answer matched or questionType is COMPLETE_TABLE");
+
                 exerciseHistory.setCorrectAnswer(true);
                 exerciseHistory.setSolutionTime(solution_time);
                 this.persist.save(exerciseHistory);
@@ -148,6 +163,7 @@ public class IslandsController {
                 success = true;
                 message = "Great job!";
             } else {
+                System.out.println("Answer is incorrect.");
                 score = Constants.WRONG_ANSWER_PENALTY;
                 message = "Wrong answer.";
             }
@@ -160,44 +176,45 @@ public class IslandsController {
             islandLevel = this.persist.getLevelByUserIdAndIslandId(user, island);
 
             List<ExerciseHistoryEntity> history = this.persist.getExercisesByUserIdAndIsland(user, island);
-
             int currentLevel = islandLevel.getLevel();
+
             List<ExerciseHistoryEntity> currentLevelHistory = history.stream()
                     .filter(e -> e.getLevel() == currentLevel)
                     .collect(Collectors.toList());
-            if (questionType == Constants.COMPLETE_TABLE) {
-                System.out.println("11111111 "+solution_time);
-                if (solution_time < 120){
-                    progress = 1.5 + islandLevel.getProgress();
-                }else {
-                    progress = 1 + islandLevel.getProgress();
 
+            if (questionType == Constants.COMPLETE_TABLE) {
+                System.out.println("Question is COMPLETE_TABLE, solution time: " + solution_time);
+                if (solution_time < 120) {
+                    progress = 1.5 + islandLevel.getProgress();
+                } else {
+                    progress = 1 + islandLevel.getProgress();
                 }
-            }else{
-                Map<String, Object> levelDetails = calculateLevelProgress(currentLevelHistory, currentLevel,islandLevel.getProgress());
-                System.out.println(levelDetails);
+            } else {
+                Map<String, Object> levelDetails = calculateLevelProgress(currentLevelHistory, currentLevel, islandLevel.getProgress());
+                System.out.println("Level calculation: " + levelDetails);
                 level = (int) levelDetails.get("calculatedLevel");
                 progress = (double) levelDetails.get("progressToNextLevel");
                 levelUp = (String) levelDetails.get("statusMessage");
                 islandLevel.setLevel(level);
             }
 
-
-
-            if (progress>=100){
+            if (progress >= 100) {
                 islandLevel.setProgress(0);
-            }else{
+            } else {
                 islandLevel.setProgress(progress);
             }
-            this.persist.save(islandLevel);
 
+            this.persist.save(islandLevel);
             islandOpen = openIslands(score, user);
 
         } catch (Exception e) {
+            System.out.println("Exception occurred:");
             e.printStackTrace();
         }
-        System.out.println(success + "          sssssssssssssssss   ");
-        return new CheckExerciseResponse(success, message, user, islandOpen, islandLevel,progress,levelUp);
+
+        System.out.println("Result: success=" + success + ", message=" + message + ", progress=" + progress);
+        System.out.println("=== END checkExercise ===");
+        return new CheckExerciseResponse(success, message, user, islandOpen, islandLevel, progress, levelUp);
     }
 
 

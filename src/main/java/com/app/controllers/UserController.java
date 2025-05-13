@@ -2,6 +2,7 @@ package com.app.controllers;
 
 
 import com.app.entities.ExerciseHistoryEntity;
+import com.app.entities.IslandsEntity;
 import com.app.entities.QuestionTypeEntity;
 import com.app.entities.UserEntity;
 import com.app.service.Persist;
@@ -10,10 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -184,6 +184,81 @@ public class UserController {
     public List<ExerciseHistoryEntity> userExerciseHistory(String token){
         UserEntity user = this.persist.getUserByToken(token);
         return this.persist.getExercisesByUserId(user);
+    }
+
+    @RequestMapping("/get-user-stats")
+    public Map<String, Object> getUserStats(String token, int islandId) {
+        Map<String, Object> userStats = new HashMap<>();
+
+        try {
+            UserEntity user = this.persist.getUserByToken(token);
+            if (user == null) {
+                userStats.put("error", "User not found");
+                return userStats;
+            }
+
+            IslandsEntity island = this.persist.loadObject(IslandsEntity.class, islandId);
+            if (island == null) {
+                userStats.put("error", "Island not found");
+                return userStats;
+            }
+
+            List<ExerciseHistoryEntity> userHistory = this.persist.getExercisesByUserIdAndIsland(user, island);
+            if (userHistory == null || userHistory.isEmpty()) {
+                userStats.put("bestTime", 0);
+                userStats.put("bestDay", "אין כרגע");
+                userStats.put("bestStreak", 0);
+                return userStats;
+            }
+
+            // זמן הכי טוב - לא כולל פתרונות עם זמן 0
+            double bestTime = userHistory.stream()
+                    .filter(e -> e.isCorrectAnswer() && e.getSolutionTime() > 0)
+                    .mapToDouble(ExerciseHistoryEntity::getSolutionTime)
+                    .min()
+                    .orElse(0);
+
+            // ימי שיא בתשובות נכונות
+            Map<Date, Long> correctPerDay = userHistory.stream()
+                    .filter(e -> e.isCorrectAnswer() && e.getCreatedAt() != null)
+                    .collect(Collectors.groupingBy(
+                            e -> e.getCreatedAt(),
+                            Collectors.counting()
+                    ));
+
+            String bestDayStr = correctPerDay.entrySet().stream()
+                    .max(Map.Entry.comparingByValue())
+                    .map(entry -> entry.getKey().toString())
+                    .orElse("אין כרגע");
+
+            // רצף הכי טוב
+            int bestStreak = 0;
+            int currentStreak = 0;
+
+            List<ExerciseHistoryEntity> sortedHistory = userHistory.stream()
+                    .filter(e -> e.getCreatedAt() != null)
+                    .sorted(Comparator.comparing(ExerciseHistoryEntity::getCreatedAt))
+                    .toList();
+
+            for (ExerciseHistoryEntity e : sortedHistory) {
+                if (e.isCorrectAnswer()) {
+                    currentStreak++;
+                    bestStreak = Math.max(bestStreak, currentStreak);
+                } else {
+                    currentStreak = 0;
+                }
+            }
+
+            userStats.put("bestTime", bestTime);
+            userStats.put("bestDay", bestDayStr);
+            userStats.put("bestStreak", bestStreak);
+
+        } catch (Exception ex) {
+            System.err.println("Exception in /get-user-stats: " + ex.getMessage());
+            userStats.put("error", "Server error: " + ex.getMessage());
+        }
+
+        return userStats;
     }
 
 
