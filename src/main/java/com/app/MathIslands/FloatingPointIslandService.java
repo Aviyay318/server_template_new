@@ -117,6 +117,7 @@ public class FloatingPointIslandService extends BaseIslandService {
         service.setMaxRange(level + 5);
         service.setOperator(getOperatorByLevel(level));
         service.setRandom(new Random());
+        service.setType(level % 2 == 0 ? "decimal" : "fraction");
 
         return service;
     }

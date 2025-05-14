@@ -13,6 +13,13 @@ public class BaseMath {
     public static final double SUCCESS_BOOST_THRESHOLD = 0.80;
     public static final double FAILURE_REDUCE_THRESHOLD = 0.50;
     protected Random random;
+    private String type; // "decimal" או "fraction"
+    public String getType() {
+        return type;
+    }
+    public void setType(String type) {
+        this.type = type;
+    }
 
     public BaseMath() {
         this.random = new Random();

@@ -1,6 +1,5 @@
 package com.app.MathIslands;
 
-import com.app.Math.AddSubtractService;
 import com.app.Math.BaseMath;
 import com.app.Math.LiteralProblem;
 import com.app.entities.*;
@@ -84,15 +83,20 @@ public abstract class BaseIslandService implements MathIslandService {
             throw new IllegalArgumentException("Literal problems only supported for +, -, * or /");
         }
 
-
         List<ObjectsEntity> objects = persist.loadList(ObjectsEntity.class);
         List<ChildrenNameEntity> childrenList = persist.loadList(ChildrenNameEntity.class);
+
+        boolean useFractions = "fraction".equals(service.getType());
+        boolean useDecimals = "decimal".equals(service.getType());
+
         Map<String, Object> result = LiteralProblem.literalProblem(
                 objects,
                 childrenList,
                 service.getMaxRange(),
                 service.getRandom(),
-                service.getOperator()
+                service.getOperator(),
+                useFractions,
+                useDecimals
         );
 
         int exerciseId = saveExerciseHistory(
@@ -107,5 +111,4 @@ public abstract class BaseIslandService implements MathIslandService {
         result.put("id", exerciseId);
         return result;
     }
-
 }

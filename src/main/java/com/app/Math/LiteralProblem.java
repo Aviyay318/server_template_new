@@ -6,7 +6,16 @@ import com.app.entities.ObjectsEntity;
 import java.util.*;
 
 public class LiteralProblem {
-    public static Map<String, Object> literalProblem(List<ObjectsEntity> objects, List<ChildrenNameEntity> childrenList, int maxRange, Random random, String operator) {
+
+    public static Map<String, Object> literalProblem(
+            List<ObjectsEntity> objects,
+            List<ChildrenNameEntity> childrenList,
+            int maxRange,
+            Random random,
+            String operator,
+            boolean useFractions,
+            boolean useDecimals
+    ) {
 
         ChildrenNameEntity name1 = childrenList.get(random.nextInt(childrenList.size()));
         ChildrenNameEntity name2 = childrenList.get(random.nextInt(childrenList.size()));
@@ -14,22 +23,34 @@ public class LiteralProblem {
         ObjectsEntity obj1 = objects.get(random.nextInt(objects.size()));
         ObjectsEntity obj2 = objects.get(random.nextInt(objects.size()));
 
-        double num1 = random.nextInt(1, maxRange);
-        double num2;
-        if (operator.equals("-")) {
-            num2 = random.nextInt(1, (int) num1);
-        } else if (operator.equals("/")) {
-            num2 = random.nextInt(1, maxRange); // avoid division by 0
+        Number num1;
+        Number num2;
+
+        if (useFractions) {
+            int den1 = random.nextInt(maxRange - 1) + 1;
+            int den2 = random.nextInt(maxRange - 1) + 1;
+            int nume1 = random.nextInt(maxRange);
+            int nume2 = random.nextInt(maxRange);
+            num1 = new Fraction(nume1, den1);
+            num2 = new Fraction(nume2, den2);
+        } else if (useDecimals) {
+            double d1 = Math.round((random.nextDouble() * maxRange) * 10.0) / 10.0;
+            double d2 = Math.round((random.nextDouble() * maxRange) * 10.0) / 10.0;
+            num1 = d1;
+            num2 = (operator.equals("/") && d2 == 0) ? 1.0 : d2;
         } else {
-            num2 = random.nextInt(1, maxRange);
+            int i1 = random.nextInt(1, maxRange);
+            int i2 = (operator.equals("-")) ? random.nextInt(1, i1) : random.nextInt(1, maxRange);
+            num1 = i1;
+            num2 = i2;
         }
 
         String template = getTemplate(operator);
 
         template = template.replace("{שם1}", name1.getName());
         template = template.replace("{שם2}", name2.getName());
-        template = template.replace("{מספר1}", String.valueOf(num1));
-        template = template.replace("{מספר2}", String.valueOf(num2));
+        template = template.replace("{מספר1}", num1.toString());
+        template = template.replace("{מספר2}", num2.toString());
 
         template = switch (operator) {
             case "+" -> template.replace("{זכר/נקבה1}", name2.getGender().equals("male") ? "נתן" : "נתנה");
@@ -40,35 +61,43 @@ public class LiteralProblem {
 
         template = template.replace("{זכר/נקבה2}", name1.getGender().equals("male") ? "לו" : "לה");
 
-        String nameObj1 = (num1 > 1) ? obj1.getPluralName() : obj1.getSingularName();
-        String nameObj2 = (num2 > 1) ? obj2.getPluralName() : obj2.getSingularName();
+        String nameObj1 = obj1.getPluralName();
+        String nameObj2 = obj2.getPluralName();
         template = template.replace("{עצם1}", nameObj1);
         template = template.replace("{עצם2}", nameObj2);
 
         List<Map<String, Object>> imageHint = new ArrayList<>();
-        imageHint.add(Map.of(
-                "name", nameObj1,
-                "count", num1,
-                "svg", obj1.getSvg()
-        ));
-        imageHint.add(Map.of(
-                "name", nameObj2,
-                "count", num2,
-                "svg", obj2.getSvg()
-        ));
+        imageHint.add(Map.of("name", nameObj1, "count", num1.toString(), "svg", obj1.getSvg()));
+        imageHint.add(Map.of("name", nameObj2, "count", num2.toString(), "svg", obj2.getSvg()));
 
-        double answer = switch (operator) {
-            case "+" -> num1 + num2;
-            case "-" -> num1 - num2;
-            case "*" -> num1 * num2;
-            case "/" -> num2 == 0 ? 0 : num1 / num2;
-            default -> throw new IllegalStateException("Unexpected operator: " + operator);
-        };
+        String answerStr;
+        if (num1 instanceof Fraction && num2 instanceof Fraction) {
+            Fraction f1 = (Fraction) num1;
+            Fraction f2 = (Fraction) num2;
+            answerStr = switch (operator) {
+                case "+" -> Fraction.add(f1, f2).toString();
+                case "-" -> Fraction.subtract(f1, f2).toString();
+                case "*" -> Fraction.multiply(f1, f2).toString();
+                case "/" -> Fraction.divide(f1, f2).toString();
+                default -> "0";
+            };
+        } else {
+            double d1 = num1.doubleValue();
+            double d2 = num2.doubleValue();
+            double ans = switch (operator) {
+                case "+" -> d1 + d2;
+                case "-" -> d1 - d2;
+                case "*" -> d1 * d2;
+                case "/" -> d2 == 0 ? 0 : d1 / d2;
+                default -> 0;
+            };
+            answerStr = String.format("%.2f", ans);
+        }
 
         Map<String, Object> result = new HashMap<>();
         result.put("question", template);
         result.put("hint", num1 + " " + operator + " " + num2);
-        result.put("answer", answer);
+        result.put("answer", answerStr);
         result.put("svg1", obj1.getSvg());
         result.put("svg2", obj2.getSvg());
         result.put("imageHint", imageHint);
@@ -84,5 +113,4 @@ public class LiteralProblem {
             case "/" -> "ל{שם1} יש {מספר1} {עצם1}. הוא חילק אותם ל{מספר2} קבוצות שוות. כמה {עצם1} יש בכל קבוצה?";
             default -> throw new IllegalArgumentException("Invalid operator: " + operator);
         };
-    }
-}
+    }}

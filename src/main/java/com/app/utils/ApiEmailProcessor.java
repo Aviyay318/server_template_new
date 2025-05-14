@@ -26,7 +26,7 @@ public class ApiEmailProcessor {
     }
     public static final String SENDER_EMAIL = "kidslearning580@gmail.com";
     public static final String SENDER_PASSWORD = "rvrr dtop tcks yzpz";
-    public static final String PERSONAL = "AYRD";
+    public static final String PERSONAL = "kids_learning";
 
     public static boolean sendEmail(String recipient, String subject, String otpCode) {
         Properties properties = getProperties();

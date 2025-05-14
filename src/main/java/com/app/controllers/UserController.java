@@ -211,14 +211,12 @@ public class UserController {
                 return userStats;
             }
 
-            // זמן הכי טוב - לא כולל פתרונות עם זמן 0
             double bestTime = userHistory.stream()
                     .filter(e -> e.isCorrectAnswer() && e.getSolutionTime() > 0)
                     .mapToDouble(ExerciseHistoryEntity::getSolutionTime)
                     .min()
                     .orElse(0);
 
-            // ימי שיא בתשובות נכונות
             Map<Date, Long> correctPerDay = userHistory.stream()
                     .filter(e -> e.isCorrectAnswer() && e.getCreatedAt() != null)
                     .collect(Collectors.groupingBy(
@@ -231,7 +229,6 @@ public class UserController {
                     .map(entry -> entry.getKey().toString())
                     .orElse("אין כרגע");
 
-            // רצף הכי טוב
             int bestStreak = 0;
             int currentStreak = 0;
 

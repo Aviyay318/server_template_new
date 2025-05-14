@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import com.app.Math.Fraction;
 import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -139,8 +139,15 @@ public class IslandsController {
 
             System.out.println("Stored answer in DB: " + exerciseHistory.getAnswer());
 
-            if (questionType == Constants.COMPLETE_TABLE ||
-                    (exerciseHistory.getAnswer() != null && exerciseHistory.getAnswer().equals(answer))) {
+            boolean isCorrect;
+            try {
+                String correct = exerciseHistory.getAnswer();
+                isCorrect = areEqualFractionsOrDecimals(correct, answer);
+            } catch (Exception e) {
+                isCorrect = false;
+            }
+
+            if (questionType == Constants.COMPLETE_TABLE || isCorrect) {
 
                 System.out.println("Answer matched or questionType is COMPLETE_TABLE");
 
@@ -215,6 +222,30 @@ public class IslandsController {
         System.out.println("Result: success=" + success + ", message=" + message + ", progress=" + progress);
         System.out.println("=== END checkExercise ===");
         return new CheckExerciseResponse(success, message, user, islandOpen, islandLevel, progress, levelUp);
+    }
+
+    private boolean areEqualFractionsOrDecimals(String a, String b) {
+        try {
+            if (a.contains("/") || b.contains("/")) {
+                Fraction f1 = parseFraction(a);
+                Fraction f2 = parseFraction(b);
+                return Math.abs(f1.doubleValue() - f2.doubleValue()) < 0.01;
+            } else {
+                double d1 = Double.parseDouble(a);
+                double d2 = Double.parseDouble(b);
+                return Math.abs(d1 - d2) < 0.01;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private Fraction parseFraction(String input) {
+        if (input.equals("1")) return new Fraction(1, 1);
+        String[] parts = input.split("/");
+        int num = Integer.parseInt(parts[0].trim());
+        int den = parts.length > 1 ? Integer.parseInt(parts[1].trim()) : 1;
+        return new Fraction(num, den);
     }
 
 
