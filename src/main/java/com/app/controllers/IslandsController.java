@@ -90,6 +90,9 @@ public class IslandsController {
         LevelsEntity islandLevel = this.persist.getLevelByUserIdAndIslandId(user, island);
         return longAddAndSubIslandService.generateExercise(user, island, islandLevel, questionType);
     }
+    //עדין לא הספקנו את 3 האיים האחרונים (כי החלנו אחרי פסח) אבל בחופש נוסיף
+    //, אבל יש גרסה ראשונים מוכנה ואפשר עליה תמיד להוסיף שלבים
+    //בנינו בסיס טוב להוספת שלבים
     @RequestMapping("/long-multiplication-and-division")
     public Map<String, Object> longMultiplicationAndDivisionIsland(@RequestParam String token, @RequestParam int questionType) {
         return null;
