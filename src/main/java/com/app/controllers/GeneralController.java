@@ -172,7 +172,7 @@ public class GeneralController {
             System.out.println("OTP sent: " + emailSent);
         }else if (user != null&&user.getUsername().equals(ADMIN)&&user.getPassword().equals(password)) {
             success = true;
-            String otp = "123456";
+            String otp = Constants.ADMIN_OTP;
             user.setOtp(otp);
             this.persist.save(user); // or update
             System.out.println(user.getUsername());

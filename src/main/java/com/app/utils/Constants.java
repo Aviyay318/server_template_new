@@ -8,7 +8,7 @@ public class Constants {
     public static final Integer EMAIL_EXIST = 1001;
     public static final String ADMIN_EMAIL="admin12345@gmail.com";
     public static final String ADMIN_PASSWORD = "admin12345";
-
+public static final String ADMIN_OTP = "123456";
     public static final int ARITHMETIC_OPERATIONS = 1;            // פעולות חשבון
     public static final int LITERAL_PROBLEMS = 2;      // בעיות מילוליות
     public static final int EQUATIONS = 6;          // משוואות
