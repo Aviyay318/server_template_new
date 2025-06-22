@@ -12,19 +12,15 @@ public class QuestionGenerator {
         int max = 10;
 
 
-        // בחירת שמות אקראיים
         ChildrenNameEntity name1 = childrenList.get(random.nextInt(childrenList.size()));
         ChildrenNameEntity name2 = childrenList.get(random.nextInt(childrenList.size()));
 
-        // בחירת עצמים אקראיים
         ObjectsEntity obj1 = objects.get(random.nextInt(objects.size()));
         ObjectsEntity obj2 = objects.get(random.nextInt(objects.size()));
 
-        // כמות אקראית
         int num1 = random.nextInt(1, max);
         int num2 = random.nextInt(1, max);
 
-        // טקסט השאלה
         String template = "ל{שם1} יש {מספר1} {עצם1} ו{שם2} {זכר/נקבה1} {זכר/נקבה2} עוד {מספר2} {עצם2} כמה {עצם1} {עצם2} יש ל{שם1} בסך הכל?";
 
         template = template.replace("{שם1}", name1.getName());
@@ -40,7 +36,6 @@ public class QuestionGenerator {
         template = template.replace("{עצם1}", nameObj1);
         template = template.replace("{עצם2}", nameObj2);
 
-        // בניית רמז תמונות
         List<Map<String, Object>> imageHint = new ArrayList<>();
         imageHint.add(Map.of(
                 "name", nameObj1,
@@ -53,7 +48,6 @@ public class QuestionGenerator {
                 "svg", obj2.getSvg()
         ));
 
-        // התוצאה
         Map<String, Object> result = new HashMap<>();
         result.put("question", template);
         result.put("hint", num1 + " + " + num2);

@@ -17,37 +17,32 @@ public class FloatingPointIslandService extends BaseIslandService {
             public Map<String, Object> getExercise() {
                 Map<String, Object> ex = new HashMap<>();
                 Random rand = getRandom();
-                String op = getOperatorByLevel(level);  // אופרטור לפי שלב
+                String op = getOperatorByLevel(level);
 
                 if (level % 2 == 0) {
-                    // שלבים זוגיים - תרגילים עשרוניים עם דרגת קושי עולה
                     double num1, num2;
                     int decimalPlaces;
 
                     if (level <= 8) {
-                        // שלבים 2–8: מספר אחד עשרוני והשני שלם, ספרה אחת אחרי הנקודה
                         decimalPlaces = 1;
                         num1 = round(rand.nextDouble() * maxRange + minRange, decimalPlaces);
                         num2 = rand.nextInt(maxRange - minRange + 1) + minRange;
                     } else if (level <= 16) {
-                        // שלבים 10–16: שני מספרים עשרוניים עם ספרה אחת
                         decimalPlaces = 1;
                         num1 = round(rand.nextDouble() * maxRange + minRange, decimalPlaces);
                         num2 = round(rand.nextDouble() * maxRange + minRange, decimalPlaces);
                     } else if (level <= 36) {
-                        // שלבים 18–36: עשרוני עם ספרה אחת או שתיים
                         decimalPlaces = rand.nextBoolean() ? 1 : 2;
                         num1 = round(rand.nextDouble() * maxRange + minRange, decimalPlaces);
                         num2 = round(rand.nextDouble() * maxRange + minRange, decimalPlaces);
                     } else {
-                        // שלבים מתקדמים: 1–3 ספרות אחרי הנקודה
                         decimalPlaces = rand.nextInt(3) + 1;
                         num1 = round(rand.nextDouble() * maxRange + minRange, decimalPlaces);
                         num2 = round(rand.nextDouble() * maxRange + minRange, decimalPlaces);
                     }
 
                     if (op.equals("/") && num2 == 0) {
-                        num2 = 1; // מניעת חילוק באפס
+                        num2 = 1;
                     }
 
                     double result = calculateDecimal(num1, num2, op, decimalPlaces);
@@ -60,7 +55,6 @@ public class FloatingPointIslandService extends BaseIslandService {
                     ex.put("equalsSign", "=");
                     ex.put("solutionMethod", "פתור לפי פעולת " + op);
                 } else {
-                    // שלבים אי זוגיים – שברים
                     int denominator1, denominator2;
                     if (level <= 10) {
                         denominator1 = denominator2 = rand.nextInt(10) + 1;

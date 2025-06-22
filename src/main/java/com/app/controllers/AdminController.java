@@ -46,7 +46,6 @@ public class AdminController {
             success = true;
             message = "ההודעות נשלחו בהצלחה";
 
-            // ✉ שליחת Notification
             NotificationEntity notification = new NotificationEntity();
             notification.setTitle("הודעת מנהל");
             notification.setContent("התקבלה הודעה במייל");

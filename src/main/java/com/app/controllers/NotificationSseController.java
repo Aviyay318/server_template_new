@@ -38,7 +38,6 @@ public class NotificationSseController {
             }
         }
 
-        // ניקוי emitters שלא פעילים יותר
         toRemove.forEach(emitterToRemove ->
                 emitters.entrySet().removeIf(entry -> entry.getValue().equals(emitterToRemove))
         );

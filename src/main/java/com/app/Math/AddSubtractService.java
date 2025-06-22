@@ -31,18 +31,16 @@ public class AddSubtractService extends BaseMath {
         System.out.println("Level: " + level);
         System.out.println("Success Rate: " + success);
 
-        this.maxRange = level * 100; // התחלה ב-100 כדי להרגיש "ארוך"
+        this.maxRange = level * 100;
 
-        // חיזוק/החלשה לפי הצלחה
         if (success >= SUCCESS_BOOST_THRESHOLD) {
-            this.maxRange += (int)(this.maxRange * success * 0.5); // העלאה מתונה
+            this.maxRange += (int)(this.maxRange * success * 0.5);
         } else if (success < FAILURE_REDUCE_THRESHOLD) {
-            this.maxRange -= (int)(this.maxRange * success * 0.5); // הקטנה קלה
+            this.maxRange -= (int)(this.maxRange * success * 0.5);
         }
 
-        this.maxRange = Math.min(this.maxRange, 1000); // תקרה כדי למנוע עומס
+        this.maxRange = Math.min(this.maxRange, 1000);
 
-        // לסירוגין פלוס או מינוס, בהתאם לרמה
         this.operator = (level % 2 == 0) ? "-" : "+";
     }
 

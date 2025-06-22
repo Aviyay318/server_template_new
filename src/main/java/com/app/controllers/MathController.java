@@ -82,20 +82,17 @@ public class MathController {
 
         String[][] table = new String[11][11]; // [row][column]
 
-        // Step 1: מילוי כותרות
         table[0][0] = "X";
         for (int i = 1; i <= 10; i++) {
-            table[0][i] = String.valueOf(i); // טור כותרת
-            table[i][0] = String.valueOf(i); // שורה כותרת
+            table[0][i] = String.valueOf(i);
+            table[i][0] = String.valueOf(i);
         }
 
-        // Step 2: מילוי תוצאות נכונות
         for (ExerciseHistoryEntity e : history) {
             if (e.getQuestionType() != null &&
                     e.getQuestionType().getName().equalsIgnoreCase("MULTIPLICATION_TABLE") &&
                     e.getIsCorrectAnswer()) {
 
-                // נניח הפורמט הוא "6 * 2 = ?"
                 String[] parts = e.getExercise().split("\\*|=");
                 if (parts.length >= 2) {
                     int a = Integer.parseInt(parts[0].trim());
@@ -116,16 +113,13 @@ public class MathController {
     @GetMapping("/get-exercise-with-option")
     public Map<String, Object> getExerciseWithOption(String token, int level) {
 
-        // שליפת משתמש לפי טוקן
         UserEntity user = this.persist.getUserByToken(token);
         if (user == null) {
             throw new RuntimeException("Invalid token");
         }
 
-        // יצירת תרגיל
         MathExercise mathExercise = new MathExercise(level);
         QuestionTypeEntity questionType = this.persist.loadObject(QuestionTypeEntity.class,1);
-        // שמירת ההיסטוריה
         ExerciseHistoryEntity exerciseHistory = new ExerciseHistoryEntity(user, level, mathExercise.toString(), false,mathExercise.getSolution().toString(),questionType);
         this.persist.save(exerciseHistory);
         mathExercise.setId(exerciseHistory.getId());
@@ -136,7 +130,6 @@ public class MathController {
             array.add(new Random().nextInt(mathExercise.getSolution()-5,mathExercise.getSolution()+5))  ;
         }
         temp.put("option",array);
-        // החזרת JSON
         return temp;
     }
 
